@@ -28,7 +28,7 @@
           </div>
           <span class="step__kicker">Step 1 · Requester</span>
           <h2 class="step__title">Publish the RFP</h2>
-          <p class="step__body">The requester signs a <code class="inline-code">compute.vm</code> record describing the machine — cpus, memory, disk, network, a role, and optional cloud-init user data — then wraps a strong reference to it in a <code class="inline-code">market.rfp</code> envelope. Both land on the requester's own PDS and fan out over the firehose.</p>
+          <p class="step__body">The requester signs a <code class="inline-code">compute.vm</code> record describing the machine — cpus, memory, disk, network, a role, and optional cloud-init user data — then wraps a strong reference to it in a <code class="inline-code">market.rfp</code> envelope. Both land on the requester's own PDS. The requester discovers bidders through the relay's offering index and vouch graph, then pushes the RFP to each bidder's <code class="inline-code">submitRfp</code> endpoint.</p>
           <pre class="step__code"><code>$type: market.rfp
 payload:
   uri: at://did:plc:alice/compute.vm/3mm3dolfolz2c
@@ -41,10 +41,11 @@ payload:
           </div>
           <span class="step__kicker step__kicker--echo">Step 2 · Providers</span>
           <h2 class="step__title">Bids arrive from the firehose</h2>
-          <p class="step__body">Every provider watching the relay sees the new RFP. Interested ones price it with a <code class="inline-code">market.bids.x402</code> payload — cost, currency, frequency, prepay — and bind it to the RFP in a signed <code class="inline-code">market.bid</code> record on their own PDS. The bid window stays open while offers accumulate.</p>
+          <p class="step__body">Bids arrive through two channels: direct <code class="inline-code">submitBid</code> XRPC calls (primary) and firehose discovery (fallback). Bidders create a <code class="inline-code">market.bids.free</code> payload (cost: 0 by default; x402 paid pricing is an alternative) and bind it to the RFP in a signed <code class="inline-code">market.bid</code> record.</p>
           <pre class="step__code"><code>$type: market.bid
 rfp: {uri: at://did:plc:alice/market.rfp/3mm3d..., cid: bafyrei...rfp}
-payload: {uri: at://did:plc:bob/market.bids.x402/3mm4..., cid: bafyrei...x402}</code></pre>
+payload: {uri: at://did:plc:bob/market.bids.free/3mm4..., cid: bafyrei...free}
+submitAccept: did:plc:bob#pdr_temp_market</code></pre>
         </div>
 
         <div class="step">
@@ -56,7 +57,8 @@ payload: {uri: at://did:plc:bob/market.bids.x402/3mm4..., cid: bafyrei...x402}</
           <p class="step__body">Once the window closes, the requester's policy filter and scorer — lowest cost, by default — pick a winner. Locking it in means signing a <code class="inline-code">market.accept</code> record that references both the RFP and the winning bid, then calling the provider's <code class="inline-code">submitAccept</code> endpoint.</p>
           <pre class="step__code"><code>$type: market.accept
 rfp: {uri: at://did:plc:alice/market.rfp/3mm3d..., cid: bafyrei...rfp}
-bid: {uri: at://did:plc:bob/market.bid/3mm4..., cid: bafyrei...bid}</code></pre>
+bid: {uri: at://did:plc:bob/market.bid/3mm4..., cid: bafyrei...bid}
+submitEvent: did:plc:alice#pdr_temp_compute_event</code></pre>
         </div>
 
         <div class="step">
@@ -65,11 +67,20 @@ bid: {uri: at://did:plc:bob/market.bid/3mm4..., cid: bafyrei...bid}</code></pre>
           </div>
           <span class="step__kicker step__kicker--echo">Step 4 · Provider</span>
           <h2 class="step__title">Provision, settle, receipt</h2>
-          <p class="step__body">The provider provisions the VM — cloud-init writes the accept bundle in — collects payment, and mints a <code class="inline-code">market.receipt</code> that anchors rfp, bid and accept behind one content-addressed CID. That receipt's strongRef goes back to the requester as proof the contract settled.</p>
+          <p class="step__body">The provider mints a signed <code class="inline-code">market.receipt</code> immediately — the contract is settled before the VM finishes booting. Then cloud-init (tunnel-subscriber + sshd + ephemeral SSH key) provisions the guest. The receipt anchors rfp, bid and accept behind one content-addressed CID.</p>
           <pre class="step__code"><code>$type: market.receipt
 rfp: {uri: ..., cid: bafyrei...rfp}
 bid: {uri: ..., cid: bafyrei...bid}
 accept: {uri: ..., cid: bafyrei...accept}</code></pre>
+        </div>
+
+        <div class="step">
+          <div class="step__marker">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <span class="step__kicker">Step 5 · Requester</span>
+          <h2 class="step__title">Verify receipt, SSH in</h2>
+          <p class="step__body">The requester verifies the receipt's signatures and proof CID binding (verifyRecordSignatures + verifyRemoteProof). Once valid, SSH connects through the relay tunnel: websocat ProxyCommand → dispatcher WebSocket → tunnel-subscriber on guest → sshd. The guest was bootstrapped with the requester's ephemeral SSH public key via cloud-init.</p>
         </div>
       </div>
     </section>
@@ -95,10 +106,10 @@ accept: {uri: ..., cid: bafyrei...accept}</code></pre>
     <section style="padding:8px 0 64px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 16px;">What the protocol enforces</span>
       <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
-        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept.rfp</strong> must equal <strong>Bid.rfp</strong> — same uri, same cid. The provider refuses to settle otherwise.</p></div>
-        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept</strong> must be authored by the same DID that authored the RFP.</p></div>
-        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Receipt</strong> must be authored by the same DID that authored the Bid.</p></div>
-        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">Every record carries inline attestations; receipts add a proof CID binding accept → receipt.</p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept.rfp</strong> and <strong>Bid.rfp</strong> strongRefs must be identical (both uri and cid). Error: <code>ContractGraphError 'Accept.rfp does not match Bid.rfp'</code></p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">The bid must carry a valid inline <code>network.attested.signature</code> by the bidder. Error: <code>'Bid is missing a valid badge.blue signature'</code></p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">The RFP must carry a valid inline <code>network.attested.signature</code> by the requester. Error: <code>'RFP is missing a valid badge.blue signature'</code></p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">The <code>service-auth</code> token issuer must be the author of the record being submitted. Error: <code>'service-auth token issuer must author the referenced record'</code> (HTTP 403)</p></div>
       </div>
     </section>
 

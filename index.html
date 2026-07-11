@@ -25,7 +25,7 @@
           <span style="display:block;">A marketplace</span><span style="display:block;">made of records.</span>
         </h1>
         <p class="hero__subtitle">
-          Four signed hops carry a machine from spec to receipt — RFP, bid, accept, receipt — each one an AT Protocol record anyone can verify.
+          Five signed records carry a machine from spec to receipt — a compute.vm payload wrapped in a four-hop RFP→bid→accept→receipt chain
         </p>
         <div class="hero__actions">
           <a href="get-started.html" class="btn btn-primary">Get started</a>
@@ -63,7 +63,7 @@
             <span class="flow-diagram__label">Receipt</span>
           </div>
         </div>
-        <p class="flow-diagram__footnote">Each arrow is a <code style="font:12px var(--font-mono);">strongRef</code> — a signed pointer to the record before it.</p>
+        <p class="flow-diagram__footnote">Each record carries its own inline <code style="font:12px var(--font-mono);">network.attested</code> signature. The arrows are <code style="font:12px var(--font-mono);">strongRef</code>s linking each hop to the one before it.</p>
       </div>
     </section>
 
@@ -71,13 +71,13 @@
     <section style="padding:16px 0 56px;">
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
         <div>
-          <span class="hero__kicker" style="margin-bottom:6px;">Right now, on the firehose</span>
-          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0;">Open RFPs</h2>
+          <span class="hero__kicker" style="margin-bottom:6px;">Example RFPs (simulated)</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0;">Sample RFPs</h2>
         </div>
         <a href="marketplace.html" class="btn btn-secondary">Open the marketplace</a>
       </div>
       <div class="feature-grid">
-        <div class="card elev-sm"><div class="card-kicker">us-west · open 6m</div><div class="card-title">4 cpu / 16G / 200G disk</div><p class="card-body">role: ml-inference-worker</p><div class="card-meta"><span class="tag tag-accent">$0.14/hr</span><span class="tag tag-neutral">3 bids</span></div></div>
+        <div class="card elev-sm"><div class="card-kicker">us-west · open 6m</div><div class="card-title">4 vCPU / 16G RAM / 200G disk / 500G net</div><p class="card-body">role: ml-inference-worker · policy: tangled-vouch</p><div class="card-meta"><span class="tag tag-accent">tangled-vouch</span><span class="tag tag-neutral">3 bids</span></div></div>
         <div class="card elev-sm"><div class="card-kicker">eu-central · open 41s</div><div class="card-title">8 cpu / 32G / 500G net</div><p class="card-body">role: batch-render-node</p><div class="card-meta"><span class="tag tag-accent">$0.31/hr</span><span class="tag tag-neutral">1 bid</span></div></div>
         <div class="card elev-sm"><div class="card-kicker">ap-south · open 2m</div><div class="card-title">2 cpu / 4G / 40G disk</div><p class="card-body">role: ci-runner</p><div class="card-meta"><span class="tag tag-accent">$0.05/hr</span><span class="tag tag-neutral">5 bids</span></div></div>
       </div>
@@ -89,7 +89,7 @@
         <div>
           <span class="hero__kicker" style="margin-bottom:8px;">For organizations</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0;max-width:20ch;">Hand your spare capacity to your own people</h2>
-          <p style="font-size:15px;line-height:26px;margin:14px 0 0;max-width:52ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">If your org already owns machines, it can act as a bidder for its own members — no shared root passwords, no internal ticket queue. A member's RFP is just another signed record, and your bidder decides whose it will even look at.</p>
+          <p style="font-size:15px;line-height:26px;margin:14px 0 0;max-width:52ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">If your org already owns infrastructure — a Docker host, a DigitalOcean account — it can act as a bidder with pluggable compute providers for its own members — no shared root passwords, no internal ticket queue. A member's RFP is just another signed record, and your bidder decides whose it will even look at.</p>
           <a href="trust.html" class="btn btn-ghost" style="padding-left:0;margin-top:6px;">See how policy modes work →</a>
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;">
@@ -106,7 +106,7 @@
       <div class="cta-banner">
         <div class="cta-banner__text">
           <h3>Bring your own machine</h3>
-          <p>Watch the firehose, price a bid, get paid the moment a receipt clears.</p>
+          <p>Publish an Offering record to advertise capacity. The relay indexes it. Requesters discover you and submit RFPs. Price a bid, provision, get a receipt the moment the contract settles.</p>
         </div>
         <div class="cta-banner__actions">
           <a href="get-started.html" class="btn btn-primary">Get started</a>

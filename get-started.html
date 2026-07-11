@@ -17,7 +17,7 @@
     <section style="padding:72px 0 32px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Quickstart</span>
       <h1 style="margin-left:-0.028em;">From zero to a signed contract</h1>
-      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Pick a side. Both paths assume you already have an AT Protocol identity — a DID and a PDS that will hold your records.</p>
+      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Pick a side. Both paths assume you already have an AT Protocol identity — a DID and a PDS that will hold your records. The fastest way is with the CLI tools — <code class="inline-code">request-vm-ssh</code> for the requester side and <code class="inline-code">hono-bidder</code> for the provider side — each automates the full flow in one process.</p>
       <div class="seg" style="margin-top:24px;" id="side-toggle">
         <label class="seg-opt"><input type="radio" name="side" value="requester" checked><span>I need compute</span></label>
         <label class="seg-opt"><input type="radio" name="side" value="provider"><span>I have machines</span></label>
@@ -33,7 +33,32 @@
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 1</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Automated path (recommended)</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Run the requester CLI</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">One command provisions the machine, collects bids, signs the accept, waits for SSH readiness, and drops you into a shell — everything steps 1-4 below, automated.</p>
+        </div>
+        <pre class="step__code"><code>$ deno run -A jsr:@publicdomainrelay/request-vm-ssh \
+    --bid-window-sec 60 \
+    --vm-ready-timeout-sec 300
+
+# Or with OAuth (Bluesky handle login):
+$ deno run -A jsr:@publicdomainrelay/request-vm-ssh \
+    --atproto-oauth \
+    --atproto-handle user.bsky.social \
+    --bid-window-sec 60
+
+# Or QR-based OAuth (headless, scan with phone):
+$ deno run -A jsr:@publicdomainrelay/request-vm-ssh \
+    --atproto-oauth-qr \
+    --bid-window-sec 60</code></pre>
+        <div style="font-size:13px;line-height:21px;color:color-mix(in srgb, var(--color-text) 65%, transparent);">
+          Options: <code class="inline-code">--bid-window-sec</code> (default 30), <code class="inline-code">--vm-ready-timeout-sec</code> (default 300), <code class="inline-code">--keep-vm</code> (skip cleanup), <code class="inline-code">--exec</code> (run program instead of shell), <code class="inline-code">--user-data</code> (custom cloud-init), <code class="inline-code">--policy-mode only-me|mutuals|tangled-vouch|dynamic</code>, <code class="inline-code">--bidder-dids</code> (allowlist), <code class="inline-code">--deny-bidder-dids</code> (blocklist), <code class="inline-code">--relay-url</code>. Config: <code class="inline-code">CONFIG_PATH_REQUEST_VM_SSH</code> env or <code class="inline-code">config.json</code>.
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 1 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Describe the machine</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Write a <code class="inline-code">compute.vm</code> record — cpus, mem, disk, network, a role and, if you need it, cloud-init user data.</p>
         </div>
@@ -49,7 +74,7 @@ role: ml-inference-worker</code></pre>
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 2</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 2 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Publish the RFP</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Wrap a strong reference to the VM record in a <code class="inline-code">market.rfp</code> and publish it. The firehose carries it to every provider watching.</p>
         </div>
@@ -64,7 +89,7 @@ payload:
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 3</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 3 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Wait, score, accept</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Let the bid window run, apply your policy (lowest cost by default), then sign a <code class="inline-code">market.accept</code> and call the winning provider's endpoint.</p>
         </div>
@@ -78,7 +103,7 @@ $ curl -X POST https://bob.example/xrpc/submitAccept \
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 4</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 4 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Get your receipt</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The provider provisions the machine and mints a <code class="inline-code">market.receipt</code> anchoring the whole chain. That's your proof of settlement.</p>
         </div>
@@ -95,7 +120,38 @@ $ curl -X POST https://bob.example/xrpc/submitAccept \
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 1</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Automated path (recommended)</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Run the bidder CLI</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">One process subscribes to the firehose, watches for RFPs, places bids, accepts winning contracts, and provisions VMs — everything steps 1-4 below, automated.</p>
+        </div>
+        <pre class="step__code"><code># Local container provider (default)
+$ deno run -A jsr:@publicdomainrelay/hono-bidder \
+    --compute-provider-local \
+    --policy-mode only-me
+
+# DigitalOcean provider
+$ deno run -A jsr:@publicdomainrelay/hono-bidder \
+    --compute-provider-digitalocean-token $DO_TOKEN \
+    --policy-mode only-me
+
+# Deno worker provider (no VM, run untrusted code)
+$ deno run -A jsr:@publicdomainrelay/hono-bidder \
+    --compute-provider-deno-worker \
+    --policy-mode only-me
+
+# OAuth login (Bluesky handle)
+$ deno run -A jsr:@publicdomainrelay/hono-bidder \
+    --atproto-oauth \
+    --atproto-handle provider.bsky.social \
+    --compute-provider-local</code></pre>
+        <div style="font-size:13px;line-height:21px;color:color-mix(in srgb, var(--color-text) 65%, transparent);">
+          Options: <code class="inline-code">--policy-mode only-me|mutuals|tangled-vouch|dynamic</code>, <code class="inline-code">--compute-provider-local-mode vm|container</code>, <code class="inline-code">--compute-provider-local-vm-image</code>, <code class="inline-code">--serve-port</code> (default 0=random), <code class="inline-code">--offering-refresh-sec</code> (default 300), <code class="inline-code">--no-qr</code>. Config: <code class="inline-code">CONFIG_PATH_HONO_BIDDER</code> env or <code class="inline-code">config.json</code>.
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 1 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Pick a policy, then watch the firehose</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Choose who's even allowed to reach you — <code class="inline-code">only_me</code>, a Bluesky-mutual or Tangled-vouch network, or a remote policy server — then subscribe to the relay and filter commits for <code class="inline-code">market.rfp</code> records that match your fleet.</p>
         </div>
@@ -106,7 +162,7 @@ $ curl -X POST https://bob.example/xrpc/submitAccept \
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 2</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 2 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Price it, bid it</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Publish a <code class="inline-code">market.bids.x402</code> payload, then a <code class="inline-code">market.bid</code> that binds it to the RFP.</p>
         </div>
@@ -120,7 +176,7 @@ $ atproto record create \
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 3</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 3 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Accept a submitAccept</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Verify the accept references your bid's exact uri and cid, and comes from the RFP's own author, before provisioning anything.</p>
         </div>
@@ -133,7 +189,7 @@ $ atproto record create \
 
       <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
         <div>
-          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 4</span>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 4 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Provision, then mint the receipt</h2>
           <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Collect payment, provision the VM, and sign a <code class="inline-code">market.receipt</code> anchoring rfp, bid and accept.</p>
         </div>

@@ -32,13 +32,13 @@
         <div class="card elev-sm" style="padding:24px;">
           <span class="tag tag-accent">compute.vm</span>
           <h3 style="font-size:19px;margin:12px 0 4px;">Full VM</h3>
-          <p class="card-body" style="font-size:14px;">A real machine — SSH in over a websocat/fedproxy tunnel once the receipt clears. Good for anything that needs a whole OS.</p>
+          <p class="card-body" style="font-size:14px;">A real machine — SSH in over a websocat relay tunnel (ProxyCommand → dispatcher → tunnel-subscriber on guest → sshd) once the receipt clears. Good for anything that needs a whole OS.</p>
           <p style="font-size:12.5px;margin:12px 0 0;color:var(--color-text-faint);"><code class="inline-code">gateway.requestComputeVM</code></p>
         </div>
         <div class="card elev-sm" style="padding:24px;">
           <span class="tag tag-accent-2">deno worker</span>
           <h3 style="font-size:19px;margin:12px 0 4px;">Deno Worker</h3>
-          <p class="card-body" style="font-size:14px;">Ship source + a <code class="inline-code">deno.json</code> instead of provisioning a machine. Ephemeral (one request, then gone) or persistent (a long-running worker that can host others).</p>
+          <p class="card-body" style="font-size:14px;">Ship source + a <code class="inline-code">deno.json</code> instead of provisioning a full VM. Both ephemeral and persistent workers are provisioned through the same VM contract flow (runComputeContract) — they differ only in bidder discovery scope. Tunnel URLs are not returned for workers.</p>
           <p style="font-size:12.5px;margin:12px 0 0;color:var(--color-text-faint);"><code class="inline-code">gateway.requestComputeWorkerEphemeral</code> / <code class="inline-code">…Persistent</code></p>
         </div>
       </div>
@@ -62,17 +62,23 @@
     <section style="padding-bottom:56px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 6px;">Request a VM</h2>
       <p style="font-size:14.5px;line-height:24px;margin:0 0 16px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">One call, given a service-auth token and an SSH public key.</p>
-      <pre class="code-block"><code>goat xrpc procedure "$GATEWAY_URL" gateway.requestComputeVM \
+      <pre class="code-block"><code>goat xrpc procedure "$GATEWAY_URL" com.publicdomainrelay.temp.gateway.requestComputeVM \
   Authorization:"Bearer $SVC_TOKEN" \
   sshPublicKey="$(cat my-vm-key.pub)" \
+  tokens:='{"submitRfp":"...","submitAccept":"...","createRecord":"..."}' \
+  skipSsh:=false \
   bidWindowSec:=30 \
   computeVm:='{"cpus":1,"mem":"512M","disk":"10G","network":"500G","role":"my-vm"}' \
   extraBidderDids:='["'"$BIDDER_DID"'"]'</code></pre>
       <p style="font-size:14.5px;line-height:24px;margin:0 0 16px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The gateway returns a receipt plus everything you need to get a shell:</p>
       <pre class="code-block"><code>{
   "receiptOk": true,
+  "receiptUri": "at://did:plc:gateway/market.receipt/3abc...",
+  "receiptCid": "bafyrei...receipt",
   "websocatUrl": "wss://my-vm--did-plc-abc123.fedproxy.com",
-  "vmFqdn": "my-vm--did-plc-abc123.fedproxy.com"
+  "vmFqdn": "my-vm--did-plc-abc123.fedproxy.com",
+  "winnerDid": "did:plc:bob",
+  "sshReady": true
 }</code></pre>
       <pre class="code-block"><code>ssh -o ProxyCommand='websocat --binary wss://my-vm--did-plc-abc123.fedproxy.com' \
     -o IdentityFile=./my-vm-key \
@@ -85,14 +91,26 @@
         <thead><tr><th>Flag</th><th>Env</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td><code style="font:12.5px var(--font-mono);">--port</code></td><td><code style="font:12.5px var(--font-mono);">PORT</code></td><td>TCP port</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--hostname</code></td><td><code style="font:12.5px var(--font-mono);">HOSTNAME</code></td><td>Public hostname</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--private-key-hex-path</code></td><td><code style="font:12.5px var(--font-mono);">REPO_PRIVATE_KEY_HEX_PATH</code></td><td>Stable DID key</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--pds-state-path</code></td><td><code style="font:12.5px var(--font-mono);">PDS_STATE_PATH</code></td><td>Persistent PDS state</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--plc-directory-url</code></td><td><code style="font:12.5px var(--font-mono);">PLC_DIRECTORY_URL</code></td><td>PLC directory</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--dispatcher-host</code></td><td><code style="font:12.5px var(--font-mono);">INGRESS_PROXY_HOST</code></td><td>XRPC relay</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">--relay-urls</code></td><td><code style="font:12.5px var(--font-mono);">RELAY_URLS</code></td><td>Bidder-discovery relay(s)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--hostname</code></td><td><code style="font:12.5px var(--font-mono);">HOSTNAME</code></td><td>Public hostname (default: localhost)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--private-key-hex</code></td><td><code style="font:12.5px var(--font-mono);">PRIVATE_KEY_HEX</code></td><td>Secp256k1 private key hex (takes priority over --private-key-hex-path)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--private-key-hex-path</code></td><td><code style="font:12.5px var(--font-mono);">REPO_PRIVATE_KEY_HEX_PATH</code></td><td>Path to load/save private key hex for stable DID</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--pds-state-path</code></td><td><code style="font:12.5px var(--font-mono);">PDS_STATE_PATH</code></td><td>Persistent PDS state (Deno.Kv SQLite)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--storage-path</code></td><td><code style="font:12.5px var(--font-mono);">STORAGE_PATH</code></td><td>Fallback storage path (aliases --pds-state-path)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--plc-directory-url</code></td><td><code style="font:12.5px var(--font-mono);">PLC_DIRECTORY_URL</code></td><td>PLC directory (default: https://plc.directory)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--ingress-proxy-host</code></td><td><code style="font:12.5px var(--font-mono);">INGRESS_PROXY_HOST</code></td><td>XRPC relay dispatcher host (default: xrpc.fedproxy.com)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--fedproxy-host</code></td><td><code style="font:12.5px var(--font-mono);">FEDPROXY_HOST</code></td><td>FedProxy SSH ingress host (default: fedproxy.com)</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--relay-urls</code></td><td><code style="font:12.5px var(--font-mono);">RELAY_URLS</code></td><td>Comma-separated relay URLs for bidder discovery</td></tr>
         </tbody>
       </table>
+    </section>
+
+    <section style="padding-bottom:40px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:0 0 12px;">Current limitations</h2>
+      <ul style="font-size:14px;line-height:24px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">
+        <li><code class="inline-code">deleteCompute</code> is a planned endpoint (currently returns <code class="inline-code">{ok:true}</code> without performing actual deletion).</li>
+        <li>The requester identity (<code class="inline-code">_caller</code>) is accepted but ignored — the gateway always acts as its own DID.</li>
+        <li>Worker methods call the same <code class="inline-code">runComputeContract</code> as VM requests (they provision a VM behind the scenes).</li>
+      </ul>
     </section>
 
     <section style="padding-bottom:64px;">

@@ -18,7 +18,7 @@
     <section style="padding:72px 0 36px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Workload Identity Federation</span>
       <h1 style="margin-left:-0.028em;max-width:22ch;">A provisioned workload never holds a long-lived secret</h1>
-      <p style="font-size:15.5px;line-height:26px;max-width:74ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Instead of a provider baking a static API key or password into a VM at boot, a bid can attach a <code class="inline-code">compute.config.wif.simple</code> record: a pointer to an OIDC issuer the workload can prove its own identity to, in exchange for a short-lived token scoped to exactly what it needs.</p>
+      <p style="font-size:15.5px;line-height:26px;max-width:74ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Instead of a provider baking a static API key or password into a VM at boot, a bid can attach a <code class="inline-code">com.publicdomainrelay.temp.compute.config.wif.simple</code> record: a pointer to an OIDC issuer the workload can prove its own identity to, in exchange for a short-lived token scoped to exactly what it needs.</p>
     </section>
 
     <section style="padding-bottom:48px;">
@@ -28,21 +28,28 @@
           <table style="width:100%;border-collapse:collapse;font-size:13px;">
             <tbody>
               <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">issuer_uri</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The OIDC issuer the workload will authenticate against.</td></tr>
-              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">to_issue</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The audience the token should be scoped to — an API identifier plus an <code style="font:12px var(--font-mono);">actx</code> tying it to this specific contract.</td></tr>
-              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">subject</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The identity the token asserts — e.g. <code style="font:11.5px var(--font-mono);">actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code>.</td></tr>
-              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">token_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the workload writes the token once it has one.</td></tr>
-              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">url_route</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The path on the issuer to call to redeem a proof for a token.</td></tr>
-              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">accept_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the signed accept bundle is written on the guest for identity proof.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">to_issue</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Opaque exchange identifier (e.g. <code style="font:12px var(--font-mono);">exchange-custom-droplet-oidc-poc</code>). The OIDC token audience is set independently at issue time via the <code style="font:12px var(--font-mono);">aud</code> field in the issue request body.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">actx</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Team or context identifier (e.g. a did:plc key). Used as the <code style="font:12px var(--font-mono);">{actx}</code> template variable in <code style="font:12px var(--font-mono);">subject</code>.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">subject</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Template for the identity the token asserts. Variables: <code style="font:11.5px var(--font-mono);">{actx}</code>, <code style="font:11.5px var(--font-mono);">{did-plc-key}</code>, <code style="font:11.5px var(--font-mono);">{role}</code>.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">token_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the provisioning prove step writes the service account token on the guest. Read by fedproxy-client at runtime.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">url_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the issuer base URL is written on the guest. Read by fedproxy-client to construct issue endpoint calls.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">actx_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the team / context identifier is written on the guest. Read by fedproxy-client for subject template substitution.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">url_route</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The RBAC-gated token issue endpoint path on the issuer (e.g. <code style="font:12px var(--font-mono);">/v1/oidc/issue</code>). Called by fedproxy-client to mint workload-scoped tokens.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">accept_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Filesystem path on the guest where the signed market.accept bundle (accept.json) is written by cloud-init. fedproxy-client reads this at startup to discover issuer URL, token paths, and OIDC configuration.</td></tr>
             </tbody>
           </table>
         </div>
-        <pre class="code-block" style="min-width:0;"><code>$type: compute.config.wif.simple
-accept_path: $HOME/secrets/market/accept.json
+        <pre class="code-block" style="min-width:0;"><code>$type: com.publicdomainrelay.temp.compute.config.wif.simple
+accept_path: /root/secrets/publicdomainrelay.com/market/accept.json
 issuer_uri: https://droplet-oidc.example.com
-to_issue: api://provider?actx=...
-token_path: /var/run/secrets/wid/token
+to_issue: exchange-custom-droplet-oidc-poc
+actx: {team-plc-key}
+actx_path: /root/secrets/digitalocean.com/serviceaccount/team_uuid
+token_path: /root/secrets/digitalocean.com/serviceaccount/token
+url_path: /root/secrets/digitalocean.com/serviceaccount/base_url
 url_route: /v1/oidc/issue
-subject: actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code></pre>
+subject: actx:{actx}:plc:{did-plc-key}:role:{role}
+createdAt: 2026-07-11T12:00:00Z</code></pre>
       </div>
       <p style="font-size:13px;margin:14px 0 0;color:color-mix(in srgb, var(--color-text) 60%, transparent);">This is orthogonal to policy mode: <a href="trust.html">policy</a> decides whether a workload gets scheduled at all; WIF decides what it can authenticate as once it's running.</p>
     </section>
@@ -54,12 +61,12 @@ subject: actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code></p
         <div class="card elev-sm" style="padding:20px;">
           <span class="tag tag-accent-2">issuer</span>
           <h3 style="font-size:15.5px;margin:10px 0 6px;">A small OIDC + RBAC service the provider runs</h3>
-          <p class="card-body" style="font-size:13.5px;">Exposes <code class="inline-code">POST /v1/oidc/prove</code> and <code class="inline-code">POST /v1/oidc/issue</code>. A VM proves custody of its SSH key by signing a challenge; the issuer replies with a short-lived, audience-scoped OIDC token.</p>
+          <p class="card-body" style="font-size:13.5px;">Exposes <code class="inline-code">POST /v1/oidc/prove</code> and <code class="inline-code">POST /v1/oidc/issue</code> (plus <code class="inline-code">/.well-known/openid-configuration</code> and <code class="inline-code">/.well-known/jwks</code>). <code class="inline-code">/v1/oidc/prove</code> validates an SSH-signed provisioning proof; <code class="inline-code">/v1/oidc/issue</code> is an RBAC-gated endpoint that mints short-lived, audience-scoped OIDC tokens for ongoing workload use.</p>
         </div>
         <div class="card elev-sm" style="padding:20px;">
           <span class="tag tag-accent">fedproxy-client</span>
           <h3 style="font-size:15.5px;margin:10px 0 6px;">A systemd service cloud-init installs on the guest</h3>
-          <p class="card-body" style="font-size:13.5px;">Runs with <code class="inline-code">AUTH_PLUGIN=oidc</code>, pointed at the issuer, and opens an outbound tunnel so the VM is reachable at a stable subdomain without any inbound port.</p>
+          <p class="card-body" style="font-size:13.5px;">Runs with <code class="inline-code">AUTH_PLUGIN=oidc</code> and <code class="inline-code">MARKET_ACCEPT_JSON_PATH</code>, reads the signed accept bundle to discover issuer URL and token paths, then calls <code class="inline-code">POST /v1/oidc/issue</code> to mint ATProto-scoped tokens for relay XRPC operations. Opens an outbound tunnel so the VM is reachable at a stable subdomain without any inbound port.</p>
         </div>
         <div class="card elev-sm" style="padding:20px;">
           <span class="tag tag-neutral">the payoff</span>
@@ -74,7 +81,7 @@ subject: actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code></p
       <div class="verification-steps">
         <div class="vstep">
           <div class="vstep__marker">1</div>
-          <p>The provider attaches a <code class="inline-code">wif.simple</code> config to its bid, naming an issuer it already runs.</p>
+          <p>The provider attaches a <code class="inline-code">wif.simple</code> config to its bid, naming an issuer it already runs and encoding paths, exchange identifier, subject template, and context identifier.</p>
         </div>
         <div class="vstep">
           <div class="vstep__marker">2</div>
@@ -82,15 +89,15 @@ subject: actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code></p
         </div>
         <div class="vstep">
           <div class="vstep__marker vstep__marker--echo">3</div>
-          <p>On accept, cloud-init writes the signed accept bundle to <code class="inline-code">accept_path</code> and starts the identity client alongside the workload.</p>
+          <p>Before provisioning, the provider bakes the <code class="inline-code">accept.json</code> into the cloud-init user_data via <code class="inline-code">injectAcceptBundle</code> and enriches the cloud-config with a <code class="inline-code">provisioning-token.service</code> one-shot that holds a signed provisioning JWT. On first boot, cloud-init writes the accept bundle to <code class="inline-code">accept_path</code> and registers the provisioning service.</p>
         </div>
         <div class="vstep">
           <div class="vstep__marker vstep__marker--echo">4</div>
-          <p>The workload proves itself to <code class="inline-code">issuer_uri</code> — in the reference case, an SSH-signed challenge — and is issued a token scoped to the <code class="inline-code">subject</code> and <code class="inline-code">to_issue</code> audience.</p>
+          <p><strong>Provisioning prove:</strong> <code class="inline-code">provisioning-token.service</code> signs the provisioning JWT with <code class="inline-code">ssh-keygen -Y sign -n prove-sshd</code> using the guest's SSH host key, then POSTs the signature to <code class="inline-code">POST /v1/oidc/prove</code> at <code class="inline-code">issuer_uri</code>. On success, it writes the returned service account token to <code class="inline-code">token_path</code> and the issuer URL to <code class="inline-code">url_path</code>.</p>
         </div>
         <div class="vstep">
           <div class="vstep__marker" style="background:var(--color-neutral-300);color:var(--color-text);">5</div>
-          <p>The token is written to <code class="inline-code">token_path</code> and used for exactly the calls it was scoped for. It expires; nothing longer-lived was ever issued.</p>
+          <p><strong>Workload identity:</strong> <code class="inline-code">fedproxy-client</code> starts with <code class="inline-code">AUTH_PLUGIN=oidc</code>, reads the accept bundle from <code class="inline-code">accept_path</code>, loads the service account token, and calls <code class="inline-code">POST /v1/oidc/issue</code> (RBAC-gated) to mint a short-lived ATProto-scoped OIDC token for each relay operation. The token expires; nothing longer-lived was ever issued.</p>
         </div>
       </div>
     </section>

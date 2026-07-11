@@ -44,7 +44,7 @@
         <tbody>
           <tr><td><code style="font:12.5px var(--font-mono);">only-me</code></td><td>Only serve RFPs from DIDs the operator itself controls.</td><td>Only accept bids from the requester's own operator DID.</td></tr>
           <tr><td><code style="font:12.5px var(--font-mono);">tangled-vouch</code></td><td>Only serve requesters this bidder has vouched for.</td><td>Only accept bids from providers this requester has vouched for.</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">mutuals</code></td><td>Only serve requesters in a mutual social connection with the bidder.</td><td>Only accept bids from providers in a mutual social connection with the requester.</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">mutuals</code></td><td>Same pre-filter shape as <code style="font:12.5px var(--font-mono);">tangled-vouch</code> (reads the same vouch set). The per-request check can additionally verify mutual social follows when a Bluesky mutuals resolver is wired up.</td><td>Same pre-filter shape as <code style="font:12.5px var(--font-mono);">tangled-vouch</code> (reads the same vouch set). The per-request check can additionally verify mutual social follows when a Bluesky mutuals resolver is wired up.</td></tr>
           <tr><td><code style="font:12.5px var(--font-mono);">dynamic</code></td><td>Defer the accept/reject decision to a policy server the bidder configures.</td><td>Defer the accept/reject decision to a policy server the requester configures.</td></tr>
         </tbody>
       </table>
@@ -53,7 +53,7 @@
 
     <section style="padding-bottom:48px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">Vouch and denounce</h2>
-      <p style="font-size:14px;line-height:23px;margin:0 0 16px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Both <code style="font:12.5px var(--font-mono);">tangled-vouch</code> and <code style="font:12.5px var(--font-mono);">mutuals</code> read the same graph — vouch records published under Tangled's own namespace. A vouch is a plain signed statement, "I trust this DID." A denounce is the same shape with the opposite meaning, and it overrides a vouch outright. Critically, <strong>each side queries its own graph independently</strong> — a bidder checks who it has vouched for; a requester checks who it has vouched for. Neither reads the other's list.</p>
+      <p style="font-size:14px;line-height:23px;margin:0 0 16px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Both <code style="font:12.5px var(--font-mono);">tangled-vouch</code> and <code style="font:12.5px var(--font-mono);">mutuals</code> read the same graph — vouch records published under Tangled's own namespace (<code style="font:12.5px var(--font-mono);">sh.tangled.graph.vouch</code>). A vouch is a signed statement, "I trust this DID," stored as a Tangled record whose rkey is the vouched DID. A denounce is the same shape with <code style="font:12.5px var(--font-mono);">kind: "denounce"</code> — the code skips it when building the vouch set, so that DID is never added. Critically, <strong>each side queries its own graph independently</strong> — a bidder checks who it has vouched for; a requester checks who it has vouched for. Neither reads the other's list.</p>
       <div class="two-col">
         <div class="card elev-sm" style="padding:22px;">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--color-accent-2-100);display:flex;align-items:center;justify-content:center;">
@@ -67,11 +67,11 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </div>
           <h3 style="font-size:18px;margin:8px 0 0;">Denounce</h3>
-          <p class="card-body" style="font-size:14px;">Alice denounces Eve. Eve's bids are dropped before they're ranked — trust is checked first, price second, and a low price never overrides a denounce.</p>
+          <p class="card-body" style="font-size:14px;">Alice denounces Eve. A denounce record prevents Eve from appearing in the vouched set — she won't pass the tangled-vouch or mutuals scope filter. It does not override an existing vouch for the same DID (the vouch would still be added); use it to affirmatively exclude a specific DID from your vouch graph.</p>
         </div>
       </div>
       <div style="margin-top:16px;padding:16px 18px;background:var(--color-surface);border-radius:16px;">
-        <p style="font-size:13.5px;line-height:22px;margin:0;color:color-mix(in srgb, var(--color-text) 78%, transparent);"><strong>Where this is thinner than it sounds:</strong> a vouch today is boolean, not weighted or scored by how many hops away it is. Direct vouches only, on both sides. Treat it as an allowlist with a revoke switch, not a reputation system.</p>
+        <p style="font-size:13.5px;line-height:22px;margin:0;color:color-mix(in srgb, var(--color-text) 78%, transparent);"><strong>Where this is thinner than it sounds:</strong> a vouch today is boolean, not weighted or scored by how many hops away it is. Direct vouches only, on both sides. A denounce prevents a DID from entering the vouch set but does not remove an already-added DID — treat it as an allowlist builder with an exclusion gate, not a reputation system. The association lookup fallback mentioned in the cost table is currently stubbed (always approves).</p>
       </div>
     </section>
 
@@ -107,8 +107,8 @@
         <thead><tr><th>Mode</th><th>Instant check</th><th>Falls back to</th><th>Calls out over the network</th></tr></thead>
         <tbody>
           <tr><td><code style="font:12.5px var(--font-mono);">only-me</code></td><td>Is this the operator's own DID?</td><td>—</td><td>Never</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">tangled-vouch</code></td><td>Is this DID in the pre-loaded vouch set?</td><td>Association lookup</td><td>Never</td></tr>
-          <tr><td><code style="font:12.5px var(--font-mono);">mutuals</code></td><td>Same shape as <code style="font:12.5px var(--font-mono);">tangled-vouch</code></td><td>Association lookup</td><td>Never</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">tangled-vouch</code></td><td>Is this DID in the pre-loaded vouch set?</td><td>— (association lookup stubbed)</td><td>Never</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">mutuals</code></td><td>Same shape as <code style="font:12.5px var(--font-mono);">tangled-vouch</code></td><td>— (association lookup stubbed)</td><td>Never</td></tr>
           <tr><td><code style="font:12.5px var(--font-mono);">dynamic</code></td><td>None — always defers</td><td>—</td><td>Yes, every time — a signed HTTP call to the policy server</td></tr>
         </tbody>
       </table>
