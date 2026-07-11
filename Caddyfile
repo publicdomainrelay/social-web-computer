@@ -1,5 +1,5 @@
-computecontracts.org {
-  root * /var/www/computecontracts.org
+socialweb.computer {
+  root * /var/www/socialweb.computer
   encode gzip
   header {
     Cache-Control "no-cache"

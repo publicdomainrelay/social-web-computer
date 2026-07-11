@@ -17,9 +17,9 @@ ssh ${SSH_OPTS} "${SSH_TARGET}" "rm -rf /tmp/stage-social-web-computer && mkdir 
 scp ${SSH_OPTS} -r dist/* "${SSH_TARGET}":/tmp/stage-social-web-computer/
 
 ssh ${SSH_OPTS} "${SSH_TARGET}" bash -xe <<'REMOTE_EOF'
-  mkdir -p /var/www/computecontracts.org
-  rm -rf /var/www/computecontracts.org/*
-  mv /tmp/stage-social-web-computer/* /var/www/computecontracts.org/
-  chown -R caddy:caddy /var/www/computecontracts.org
-  echo "Deploy complete → https://computecontracts.org"
+  mkdir -p /var/www/socialweb.computer
+  rm -rf /var/www/socialweb.computer/*
+  mv /tmp/stage-social-web-computer/* /var/www/socialweb.computer/
+  chown -R caddy:caddy /var/www/socialweb.computer
+  echo "Deploy complete → https://socialweb.computer"
 REMOTE_EOF
