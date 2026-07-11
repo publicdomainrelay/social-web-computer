@@ -12,7 +12,7 @@
 <body>
   <swc-nav current="how-it-works"></swc-nav>
 
-  <div class="swc-content">
+  <main class="swc-content">
 
     <section style="padding:84px 0 48px;">
       <span class="hero__kicker">How it works</span>
@@ -105,7 +105,7 @@ accept: {uri: ..., cid: bafyrei...accept}</code></pre>
 
     <section style="padding:8px 0 64px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 16px;">What the protocol enforces</span>
-      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+      <div class="link-grid-2">
         <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept.rfp</strong> and <strong>Bid.rfp</strong> strongRefs must be identical (both uri and cid). Error: <code>ContractGraphError 'Accept.rfp does not match Bid.rfp'</code></p></div>
         <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">The bid must carry a valid inline <code>network.attested.signature</code> by the bidder. Error: <code>'Bid is missing a valid badge.blue signature'</code></p></div>
         <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">The RFP must carry a valid inline <code>network.attested.signature</code> by the requester. Error: <code>'RFP is missing a valid badge.blue signature'</code></p></div>
@@ -123,7 +123,7 @@ accept: {uri: ..., cid: bafyrei...accept}</code></pre>
       </div>
     </section>
 
-  </div>
+  </main>
 
   <swc-footer></swc-footer>
 

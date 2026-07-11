@@ -32,7 +32,7 @@
 <body>
   <swc-nav current="request-compute"></swc-nav>
 
-  <div class="swc-content">
+  <main class="swc-content">
 
     <section style="padding:72px 0 32px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Request Compute</span>
@@ -61,18 +61,18 @@
       </div>
     </section>
 
-  </div>
+  </main>
 
   <swc-footer></swc-footer>
 
   <script type="importmap">
   {
     "imports": {
-      "compute-spa/constants": "../compute-spa/lib/constants.js",
-      "compute-spa/relay": "../compute-spa/lib/relay.js",
-      "compute-spa/service-auth": "../compute-spa/lib/service-auth.js",
-      "compute-spa/cloud-init": "../compute-spa/lib/cloud-init.js",
-      "compute-spa/ephemeral-pds": "../compute-spa/lib/ephemeral-pds.js",
+      "compute-spa/constants": "./lib/constants.js",
+      "compute-spa/relay": "./lib/relay.js",
+      "compute-spa/service-auth": "./lib/service-auth.js",
+      "compute-spa/cloud-init": "./lib/cloud-init.js",
+      "compute-spa/ephemeral-pds": "./lib/ephemeral-pds.js",
       "@publicdomainrelay/compute-spa-keypair-noble": "jsr:@publicdomainrelay/compute-spa-keypair-noble@^0",
       "@noble/curves/": "https://esm.sh/@noble/curves@1.9.7/",
       "@noble/hashes/": "https://esm.sh/@noble/hashes@1.8.0/"

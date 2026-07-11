@@ -37,4 +37,11 @@ async function copyDir(src, dst) {
 }
 await copyDir(`${import.meta.dirname}/components`, `${DIST}/components`);
 
+// Vendor compute-spa lib modules so the import map works in production.
+// compute-spa/lib/ → dist/lib/ (dev uses ../compute-spa/lib/, prod uses ./lib/)
+const SPA_LIB = `${import.meta.dirname}/../compute-spa/lib`;
+try { await copyDir(SPA_LIB, `${DIST}/lib`); } catch (e) {
+  console.warn(`skip compute-spa lib: ${e.message}`);
+}
+
 console.log("Build complete → dist/");
