@@ -17,8 +17,8 @@
 
     <section style="padding:72px 0 40px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Security &amp; verification</span>
-      <h1 style="margin-left:-0.028em;max-width:18ch;">Verify it. Don't just trust it.</h1>
-      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:20px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">There's no operator vouching for a contract's history — the records do that themselves. Signing makes a record's origin checkable; content-addressing makes its content checkable. Together they mean anyone, not just the two participants, can confirm a contract actually happened.</p>
+      <h1 style="margin-left:-0.028em;">Verify it. Don't just trust it.</h1>
+      <p style="font-size:16px;line-height:27px;margin:20px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">There's no operator vouching for a contract's history — the records do that themselves. Signing makes a record's origin checkable; content-addressing makes its content checkable. Together they mean anyone, not just the two participants, can confirm a contract actually happened.</p>
     </section>
 
     <section style="padding-bottom:56px;">
@@ -42,7 +42,7 @@
 
     <section style="padding-bottom:56px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 6px;">A receipt anchors the whole contract</h2>
-      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The <code class="inline-code">market.receipt</code> is the one record that references all three prior hops — rfp, bid, accept — each by strongRef. Reading a receipt is enough to reconstruct and re-check the entire negotiation.</p>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The <code class="inline-code">market.receipt</code> is the one record that references all three prior hops — rfp, bid, accept — each by strongRef. Reading a receipt is enough to reconstruct and re-check the entire negotiation.</p>
       <pre class="code-block" style="max-width:680px;"><code>$type: market.receipt
 rfp:    {uri: at://did:plc:alice/market.rfp/3mm3d,    cid: bafyrei...rfp}
 bid:    {uri: at://did:plc:bob/market.bid/3mm4,       cid: bafyrei...bid}
@@ -69,7 +69,7 @@ signatures:
 
     <section style="padding-bottom:56px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 6px;">Verify a receipt yourself</h2>
-      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Nothing here requires special access — the same four checks a provider runs before settling are the ones you can run afterward, from either side or neither.</p>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Nothing here requires special access — the same four checks a provider runs before settling are the ones you can run afterward, from either side or neither.</p>
       <div class="verification-steps">
         <div class="vstep">
           <div class="vstep__marker">1</div>

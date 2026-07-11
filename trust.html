@@ -17,8 +17,8 @@
 
     <section style="padding:72px 0 36px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Trust &amp; policy</span>
-      <h1 style="margin-left:-0.028em;max-width:24ch;">Two trust decisions, configured independently</h1>
-      <p style="font-size:15.5px;line-height:26px;max-width:74ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">A contract has two sides, and each one has its own thing to worry about. A <strong>bidder</strong> is deciding who it will let run on its own machines. A <strong>requester</strong> is deciding who it will trust to run its workload at all. Neither side inherits the other's answer — a bidder can be wide open to the public while a requester is picky about providers, or the reverse. Both use the same four-mode vocabulary, applied to different questions.</p>
+      <h1 style="margin-left:-0.028em;">Two trust decisions, configured independently</h1>
+      <p style="font-size:15.5px;line-height:26px;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">A contract has two sides, and each one has its own thing to worry about. A <strong>bidder</strong> is deciding who it will let run on its own machines. A <strong>requester</strong> is deciding who it will trust to run its workload at all. Neither side inherits the other's answer — a bidder can be wide open to the public while a requester is picky about providers, or the reverse. Both use the same four-mode vocabulary, applied to different questions.</p>
     </section>
 
     <section style="padding-bottom:48px;">
@@ -38,7 +38,7 @@
 
     <section style="padding-bottom:48px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">The four modes, read from both sides</h2>
-      <p style="font-size:14px;line-height:23px;margin:0 0 16px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Same four names, same underlying mechanics — but the question each one answers depends on which side configured it.</p>
+      <p style="font-size:14px;line-height:23px;margin:0 0 16px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Same four names, same underlying mechanics — but the question each one answers depends on which side configured it.</p>
       <table class="table">
         <thead><tr><th>Mode</th><th>As the bidder's policy</th><th>As the requester's policy</th></tr></thead>
         <tbody>
@@ -53,7 +53,7 @@
 
     <section style="padding-bottom:48px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">Vouch and denounce</h2>
-      <p style="font-size:14px;line-height:23px;margin:0 0 16px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Both <code style="font:12.5px var(--font-mono);">tangled-vouch</code> and <code style="font:12.5px var(--font-mono);">mutuals</code> read the same graph — vouch records published under Tangled's own namespace (<code style="font:12.5px var(--font-mono);">sh.tangled.graph.vouch</code>). A vouch is a signed statement, "I trust this DID," stored as a Tangled record whose rkey is the vouched DID. A denounce is the same shape with <code style="font:12.5px var(--font-mono);">kind: "denounce"</code> — the code skips it when building the vouch set, so that DID is never added. Critically, <strong>each side queries its own graph independently</strong> — a bidder checks who it has vouched for; a requester checks who it has vouched for. Neither reads the other's list.</p>
+      <p style="font-size:14px;line-height:23px;margin:0 0 16px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Both <code style="font:12.5px var(--font-mono);">tangled-vouch</code> and <code style="font:12.5px var(--font-mono);">mutuals</code> read the same graph — vouch records published under Tangled's own namespace (<code style="font:12.5px var(--font-mono);">sh.tangled.graph.vouch</code>). A vouch is a signed statement, "I trust this DID," stored as a Tangled record whose rkey is the vouched DID. A denounce is the same shape with <code style="font:12.5px var(--font-mono);">kind: "denounce"</code> — the code skips it when building the vouch set, so that DID is never added. Critically, <strong>each side queries its own graph independently</strong> — a bidder checks who it has vouched for; a requester checks who it has vouched for. Neither reads the other's list.</p>
       <div class="two-col">
         <div class="card elev-sm" style="padding:22px;">
           <div style="width:38px;height:38px;border-radius:50%;background:var(--color-accent-2-100);display:flex;align-items:center;justify-content:center;">
@@ -116,7 +116,7 @@
 
     <section style="padding-bottom:48px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">badge.blue attestations</h2>
-      <p style="font-size:14px;line-height:23px;margin:0 0 16px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Every record in the chain carries a signature over its own content-addressed CID, not just an author DID. Both sides' policy evaluation checks this before acting.</p>
+      <p style="font-size:14px;line-height:23px;margin:0 0 16px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Every record in the chain carries a signature over its own content-addressed CID, not just an author DID. Both sides' policy evaluation checks this before acting.</p>
       <pre class="code-block" style="max-width:100%;"><code>$type: market.rfp
 payload: {uri: at://did:plc:alice/compute.vm/3mm3d, cid: bafyrei...vm}
 signatures:

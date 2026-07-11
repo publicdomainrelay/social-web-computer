@@ -17,8 +17,8 @@
 
     <section style="padding:72px 0 36px;">
       <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Workload Identity Federation</span>
-      <h1 style="margin-left:-0.028em;max-width:22ch;">A provisioned workload never holds a long-lived secret</h1>
-      <p style="font-size:15.5px;line-height:26px;max-width:74ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Instead of a provider baking a static API key or password into a VM at boot, a bid can attach a <code class="inline-code">com.publicdomainrelay.temp.compute.config.wif.simple</code> record: a pointer to an OIDC issuer the workload can prove its own identity to, in exchange for a short-lived token scoped to exactly what it needs.</p>
+      <h1 style="margin-left:-0.028em;">A provisioned workload never holds a long-lived secret</h1>
+      <p style="font-size:15.5px;line-height:26px;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Instead of a provider baking a static API key or password into a VM at boot, a bid can attach a <code class="inline-code">com.publicdomainrelay.temp.compute.config.wif.simple</code> record: a pointer to an OIDC issuer the workload can prove its own identity to, in exchange for a short-lived token scoped to exactly what it needs.</p>
     </section>
 
     <section style="padding-bottom:48px;">
@@ -56,7 +56,7 @@ createdAt: 2026-07-11T12:00:00Z</code></pre>
 
     <section style="padding-bottom:48px;">
       <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">A real deployment: fedproxy.com</h2>
-      <p style="font-size:14px;line-height:23px;margin:0 0 20px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The reference bidder uses this pattern to hand a freshly provisioned VM a browser-accessible terminal without ever shipping it a static password.</p>
+      <p style="font-size:14px;line-height:23px;margin:0 0 20px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The reference bidder uses this pattern to hand a freshly provisioned VM a browser-accessible terminal without ever shipping it a static password.</p>
       <div style="display:flex;flex-direction:column;gap:14px;">
         <div class="card elev-sm" style="padding:20px;">
           <span class="tag tag-accent-2">issuer</span>
