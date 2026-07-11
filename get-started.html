@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Get started with Compute Contracts Protocol — from zero to a signed contract">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Get Started — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="start"></swc-nav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 32px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Quickstart</span>
+      <h1 style="margin-left:-0.028em;">From zero to a signed contract</h1>
+      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Pick a side. Both paths assume you already have an AT Protocol identity — a DID and a PDS that will hold your records.</p>
+      <div class="seg" style="margin-top:24px;" id="side-toggle">
+        <label class="seg-opt"><input type="radio" name="side" value="requester" checked><span>I need compute</span></label>
+        <label class="seg-opt"><input type="radio" name="side" value="provider"><span>I have machines</span></label>
+      </div>
+      <div style="margin-top:18px;padding:14px 18px;background:var(--color-surface);border-radius:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <span style="font-size:13.5px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Don't want to run a PDS and watch the firehose yourself? The Gateway service does steps 1–4 behind one XRPC call.</span>
+        <a href="gateway.html" class="btn btn-ghost" style="padding-left:0;">See the gateway →</a>
+      </div>
+    </section>
+
+    <!-- Requester steps -->
+    <section id="requester-steps" style="padding-bottom:56px;display:flex;flex-direction:column;gap:36px;">
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 1</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Describe the machine</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Write a <code class="inline-code">compute.vm</code> record — cpus, mem, disk, network, a role and, if you need it, cloud-init user data.</p>
+        </div>
+        <pre class="step__code"><code>$ atproto record create \
+    --collection com.publicdomainrelay.temp.compute.vm \
+    --record vm.yaml
+
+cpus: 2
+mem: 4G
+disk: 40G
+role: ml-inference-worker</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 2</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Publish the RFP</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Wrap a strong reference to the VM record in a <code class="inline-code">market.rfp</code> and publish it. The firehose carries it to every provider watching.</p>
+        </div>
+        <pre class="step__code"><code>$ atproto record create \
+    --collection com.publicdomainrelay.temp.market.rfp \
+    --record rfp.yaml
+
+payload:
+  uri: at://did:plc:you/compute.vm/3mm3d
+  cid: bafyrei...vm</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 3</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Wait, score, accept</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Let the bid window run, apply your policy (lowest cost by default), then sign a <code class="inline-code">market.accept</code> and call the winning provider's endpoint.</p>
+        </div>
+        <pre class="step__code"><code>$ atproto record create \
+    --collection com.publicdomainrelay.temp.market.accept \
+    --record accept.yaml
+
+$ curl -X POST https://bob.example/xrpc/submitAccept \
+    -d @accept.yaml</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 4</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Get your receipt</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The provider provisions the machine and mints a <code class="inline-code">market.receipt</code> anchoring the whole chain. That's your proof of settlement.</p>
+        </div>
+        <div style="background:var(--color-accent-2-100);border-radius:20px;padding:20px 22px;display:flex;align-items:center;gap:12px;">
+          <svg width="22" height="22" style="flex:none;" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.35 8.95a1 1 0 0 1-.6-.01C8.5 20.5 5 18 5 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C15.51 3.81 18 5 20 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span style="font-size:14px;line-height:22px;">Verify any receipt yourself — check the NSID, the author DID, and that the CIDs bind straight through.</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Provider steps (hidden by default) -->
+    <section id="provider-steps" style="padding-bottom:56px;display:none;flex-direction:column;gap:36px;">
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 1</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Pick a policy, then watch the firehose</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Choose who's even allowed to reach you — <code class="inline-code">only_me</code>, a Bluesky-mutual or Tangled-vouch network, or a remote policy server — then subscribe to the relay and filter commits for <code class="inline-code">market.rfp</code> records that match your fleet.</p>
+        </div>
+        <pre class="step__code"><code>ws.subscribe('com.atproto.sync.subscribeRepos')
+  .filter(nsid === 'market.rfp')
+  .on('commit', (rfp) => considerBidding(rfp))</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 2</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Price it, bid it</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Publish a <code class="inline-code">market.bids.x402</code> payload, then a <code class="inline-code">market.bid</code> that binds it to the RFP.</p>
+        </div>
+        <pre class="step__code"><code>$ atproto record create \
+    --collection com.publicdomainrelay.temp.market.bids.x402 \
+    --record pricing.yaml
+$ atproto record create \
+    --collection com.publicdomainrelay.temp.market.bid \
+    --record bid.yaml</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 3</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Accept a submitAccept</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Verify the accept references your bid's exact uri and cid, and comes from the RFP's own author, before provisioning anything.</p>
+        </div>
+        <pre class="step__code"><code>app.post('/xrpc/submitAccept', (req) => {
+  assert(req.accept.bid.uri === myBid.uri)
+  assert(req.accept.bid.cid === myBid.cid)
+  return provision(req.accept)
+})</code></pre>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+        <div>
+          <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 4</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Provision, then mint the receipt</h2>
+          <p style="font-size:15px;line-height:26px;margin:10px 0 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Collect payment, provision the VM, and sign a <code class="inline-code">market.receipt</code> anchoring rfp, bid and accept.</p>
+        </div>
+        <pre class="step__code"><code>$ atproto record create \
+    --collection com.publicdomainrelay.temp.market.receipt \
+    --record receipt.yaml</code></pre>
+      </div>
+
+    </section>
+
+    <section style="padding-bottom:64px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>Need the field-by-field detail?</h3>
+          <p>Every record type and validation rule is written up in the docs.</p>
+        </div>
+        <a href="docs.html" class="btn btn-primary">Read the docs</a>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+  <script>
+    // Requester/provider toggle
+    document.getElementById('side-toggle').addEventListener('change', (e) => {
+      const side = e.target.value;
+      document.getElementById('requester-steps').style.display = side === 'requester' ? 'flex' : 'none';
+      document.getElementById('provider-steps').style.display = side === 'provider' ? 'flex' : 'none';
+    });
+  </script>
+</body>
+</html>

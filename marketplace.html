@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Marketplace — open RFPs, live from the firehose">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Marketplace — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="marketplace"></swc-nav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 32px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Marketplace</span>
+      <h1 style="margin-left:-0.028em;">Open RFPs, live from the firehose</h1>
+      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">A simulated feed — pick an RFP to see its bids, accept one, and watch the commit land below. Nothing here touches a real network.</p>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:16px;font-size:12.5px;font-family:var(--font-mono);color:color-mix(in srgb, var(--color-text) 60%, transparent);">
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--color-accent-2-700);display:inline-block;"></span>
+        ephemeral identity did:plc:9f2a… · relay: connected via fedproxy.com
+      </div>
+      <!-- Region filter -->
+      <div class="seg" style="margin-top:20px;" id="region-filter">
+        <label class="seg-opt"><input type="radio" name="region" value="all" checked><span>All regions</span></label>
+        <label class="seg-opt"><input type="radio" name="region" value="us"><span>US</span></label>
+        <label class="seg-opt"><input type="radio" name="region" value="eu"><span>EU</span></label>
+        <label class="seg-opt"><input type="radio" name="region" value="ap"><span>AP</span></label>
+      </div>
+    </section>
+
+    <!-- Marketplace component -->
+    <swc-marketplace></swc-marketplace>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+  <script type="module" src="components/swc-marketplace.js"></script>
+  <script>
+    // Region filter → marketplace component
+    const marketplace = document.querySelector('swc-marketplace');
+    document.getElementById('region-filter').addEventListener('change', (e) => {
+      marketplace._state.region = e.target.value;
+      marketplace.render();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "build": "deno run -A build.ts",
+    "deploy": "deno run -A build.ts && bash scripts/deploy.sh"
+  }
+}

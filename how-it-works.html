@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="How Compute Contracts Protocol works — four signed hops, one verifiable contract">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>How It Works — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="how-it-works"></swc-nav>
+
+  <div class="swc-content">
+
+    <section style="padding:84px 0 48px;">
+      <span class="hero__kicker">How it works</span>
+      <h1 class="hero__title" style="max-width:18ch;">Four signed hops, one verifiable contract.</h1>
+      <p style="font-size:17px;line-height:28px;max-width:60ch;margin:24px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">A requester wants a machine. A provider has one spare. Nothing changes hands until both sides have signed a record that says so — and anyone watching the firehose can check the whole chain later.</p>
+    </section>
+
+    <section style="padding:16px 0 64px;">
+      <div class="steps">
+        <div class="step">
+          <div class="step__marker">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+          </div>
+          <span class="step__kicker">Step 1 · Requester</span>
+          <h2 class="step__title">Publish the RFP</h2>
+          <p class="step__body">The requester signs a <code class="inline-code">compute.vm</code> record describing the machine — cpus, memory, disk, network, a role, and optional cloud-init user data — then wraps a strong reference to it in a <code class="inline-code">market.rfp</code> envelope. Both land on the requester's own PDS and fan out over the firehose.</p>
+          <pre class="step__code"><code>$type: market.rfp
+payload:
+  uri: at://did:plc:alice/compute.vm/3mm3dolfolz2c
+  cid: bafyrei...vm</code></pre>
+        </div>
+
+        <div class="step">
+          <div class="step__marker step__marker--echo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+          </div>
+          <span class="step__kicker step__kicker--echo">Step 2 · Providers</span>
+          <h2 class="step__title">Bids arrive from the firehose</h2>
+          <p class="step__body">Every provider watching the relay sees the new RFP. Interested ones price it with a <code class="inline-code">market.bids.x402</code> payload — cost, currency, frequency, prepay — and bind it to the RFP in a signed <code class="inline-code">market.bid</code> record on their own PDS. The bid window stays open while offers accumulate.</p>
+          <pre class="step__code"><code>$type: market.bid
+rfp: {uri: at://did:plc:alice/market.rfp/3mm3d..., cid: bafyrei...rfp}
+payload: {uri: at://did:plc:bob/market.bids.x402/3mm4..., cid: bafyrei...x402}</code></pre>
+        </div>
+
+        <div class="step">
+          <div class="step__marker">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <span class="step__kicker">Step 3 · Requester</span>
+          <h2 class="step__title">Score bids, accept one</h2>
+          <p class="step__body">Once the window closes, the requester's policy filter and scorer — lowest cost, by default — pick a winner. Locking it in means signing a <code class="inline-code">market.accept</code> record that references both the RFP and the winning bid, then calling the provider's <code class="inline-code">submitAccept</code> endpoint.</p>
+          <pre class="step__code"><code>$type: market.accept
+rfp: {uri: at://did:plc:alice/market.rfp/3mm3d..., cid: bafyrei...rfp}
+bid: {uri: at://did:plc:bob/market.bid/3mm4..., cid: bafyrei...bid}</code></pre>
+        </div>
+
+        <div class="step">
+          <div class="step__marker step__marker--echo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.35 8.95a1 1 0 0 1-.6-.01C8.5 20.5 5 18 5 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C15.51 3.81 18 5 20 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+          </div>
+          <span class="step__kicker step__kicker--echo">Step 4 · Provider</span>
+          <h2 class="step__title">Provision, settle, receipt</h2>
+          <p class="step__body">The provider provisions the VM — cloud-init writes the accept bundle in — collects payment, and mints a <code class="inline-code">market.receipt</code> that anchors rfp, bid and accept behind one content-addressed CID. That receipt's strongRef goes back to the requester as proof the contract settled.</p>
+          <pre class="step__code"><code>$type: market.receipt
+rfp: {uri: ..., cid: bafyrei...rfp}
+bid: {uri: ..., cid: bafyrei...bid}
+accept: {uri: ..., cid: bafyrei...accept}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding:8px 0 64px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 20px;">The contract's lifecycle</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span class="tag tag-accent" style="padding:8px 16px;font-size:13px;">RFP open</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" opacity="0.4" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span class="tag tag-accent" style="padding:8px 16px;font-size:13px;">Bidding</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" opacity="0.4" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span class="tag tag-accent" style="padding:8px 16px;font-size:13px;">Scoring</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" opacity="0.4" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span class="tag tag-accent-2" style="padding:8px 16px;font-size:13px;">Accepted</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" opacity="0.4" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span class="tag tag-accent-2" style="padding:8px 16px;font-size:13px;">Settling</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" opacity="0.4" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        <span class="tag tag-accent-2" style="padding:8px 16px;font-size:13px;">Settled</span>
+      </div>
+      <p style="font-size:13.5px;margin:14px 0 0;color:color-mix(in srgb, var(--color-text) 60%, transparent);">If no bid passes the requester's policy, scoring ends in <strong>Rejected</strong> instead of Accepted — the RFP simply closes.</p>
+    </section>
+
+    <section style="padding:8px 0 64px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 16px;">What the protocol enforces</span>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept.rfp</strong> must equal <strong>Bid.rfp</strong> — same uri, same cid. The provider refuses to settle otherwise.</p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Accept</strong> must be authored by the same DID that authored the RFP.</p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;"><strong>Receipt</strong> must be authored by the same DID that authored the Bid.</p></div>
+        <div class="card" style="padding:20px;"><p class="card-body" style="font-size:14px;margin:0;">Every record carries inline attestations; receipts add a proof CID binding accept → receipt.</p></div>
+      </div>
+    </section>
+
+    <section style="padding:0 0 64px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>See the full spec</h3>
+          <p>Every record type, field and validation rule, laid out for reference.</p>
+        </div>
+        <a href="docs.html" class="btn btn-primary">Read the docs</a>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+</body>
+</html>

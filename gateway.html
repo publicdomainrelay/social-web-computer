@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gateway service — one XRPC call in, a receipt and a terminal out">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Gateway — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="docs"></swc-nav>
+  <swc-docs-subnav current="gateway"></swc-docs-subnav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 40px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,380px);gap:36px;align-items:center;">
+      <div>
+        <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">The easy path</span>
+        <h1 style="margin-left:-0.028em;max-width:14ch;">One gateway in front of the whole market</h1>
+        <p style="font-size:16px;line-height:27px;max-width:56ch;margin:20px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">You don't have to run your own PDS, watch the firehose, or write a scorer. The Compute Contract Gateway is a single Hono service that speaks XRPC on one side and the decentralized market on the other — request a VM or a worker with one call, get a receipt and a terminal back.</p>
+      </div>
+      <div style="width:64px;height:64px;border-radius:50%;background:var(--color-accent-100);display:flex;align-items:center;justify-content:center;justify-self:end;">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+      </div>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 16px;">Two kinds of compute, one endpoint</h2>
+      <div class="two-col">
+        <div class="card elev-sm" style="padding:24px;">
+          <span class="tag tag-accent">compute.vm</span>
+          <h3 style="font-size:19px;margin:12px 0 4px;">Full VM</h3>
+          <p class="card-body" style="font-size:14px;">A real machine — SSH in over a websocat/fedproxy tunnel once the receipt clears. Good for anything that needs a whole OS.</p>
+          <p style="font-size:12.5px;margin:12px 0 0;color:var(--color-text-faint);"><code class="inline-code">gateway.requestComputeVM</code></p>
+        </div>
+        <div class="card elev-sm" style="padding:24px;">
+          <span class="tag tag-accent-2">deno worker</span>
+          <h3 style="font-size:19px;margin:12px 0 4px;">Deno Worker</h3>
+          <p class="card-body" style="font-size:14px;">Ship source + a <code class="inline-code">deno.json</code> instead of provisioning a machine. Ephemeral (one request, then gone) or persistent (a long-running worker that can host others).</p>
+          <p style="font-size:12.5px;margin:12px 0 0;color:var(--color-text-faint);"><code class="inline-code">gateway.requestComputeWorkerEphemeral</code> / <code class="inline-code">…Persistent</code></p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 6px;">Pair your gateway with a bidder</h2>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Before requesting compute, a gateway and a bidder confirm each other with a small bidirectional attestation.</p>
+      <div class="verification-steps">
+        <div class="vstep">
+          <div class="vstep__marker">1</div>
+          <p><strong>Gateway writes a <code class="inline-code">badgeBlueKeys</code> record</strong> — a challenge naming the bidder's DID, signed and published on the gateway's own repo.</p>
+        </div>
+        <div class="vstep">
+          <div class="vstep__marker" style="background:var(--color-accent-2-100);color:var(--color-accent-2-700);">2</div>
+          <p><strong>Bidder acknowledges automatically</strong> — the bidder software writes a <code class="inline-code">market.bidderAssociation</code> record pointing back. No manual step on the bidder's side.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 6px;">Request a VM</h2>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 16px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">One call, given a service-auth token and an SSH public key.</p>
+      <pre class="code-block"><code>goat xrpc procedure "$GATEWAY_URL" gateway.requestComputeVM \
+  Authorization:"Bearer $SVC_TOKEN" \
+  sshPublicKey="$(cat my-vm-key.pub)" \
+  bidWindowSec:=30 \
+  computeVm:='{"cpus":1,"mem":"512M","disk":"10G","network":"500G","role":"my-vm"}' \
+  extraBidderDids:='["'"$BIDDER_DID"'"]'</code></pre>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 16px;max-width:70ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The gateway returns a receipt plus everything you need to get a shell:</p>
+      <pre class="code-block"><code>{
+  "receiptOk": true,
+  "websocatUrl": "wss://my-vm--did-plc-abc123.fedproxy.com",
+  "vmFqdn": "my-vm--did-plc-abc123.fedproxy.com"
+}</code></pre>
+      <pre class="code-block"><code>ssh -o ProxyCommand='websocat --binary wss://my-vm--did-plc-abc123.fedproxy.com' \
+    -o IdentityFile=./my-vm-key \
+    root@my-vm--did-plc-abc123.fedproxy.com</code></pre>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:0 0 16px;">Gateway CLI options</h2>
+      <table class="table">
+        <thead><tr><th>Flag</th><th>Env</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code style="font:12.5px var(--font-mono);">--port</code></td><td><code style="font:12.5px var(--font-mono);">PORT</code></td><td>TCP port</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--hostname</code></td><td><code style="font:12.5px var(--font-mono);">HOSTNAME</code></td><td>Public hostname</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--private-key-hex-path</code></td><td><code style="font:12.5px var(--font-mono);">REPO_PRIVATE_KEY_HEX_PATH</code></td><td>Stable DID key</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--pds-state-path</code></td><td><code style="font:12.5px var(--font-mono);">PDS_STATE_PATH</code></td><td>Persistent PDS state</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--plc-directory-url</code></td><td><code style="font:12.5px var(--font-mono);">PLC_DIRECTORY_URL</code></td><td>PLC directory</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--dispatcher-host</code></td><td><code style="font:12.5px var(--font-mono);">INGRESS_PROXY_HOST</code></td><td>XRPC relay</td></tr>
+          <tr><td><code style="font:12.5px var(--font-mono);">--relay-urls</code></td><td><code style="font:12.5px var(--font-mono);">RELAY_URLS</code></td><td>Bidder-discovery relay(s)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section style="padding-bottom:64px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>Prefer to run it yourself?</h3>
+          <p>Every record the gateway writes is one you could write by hand — see the raw protocol.</p>
+        </div>
+        <div class="cta-banner__actions">
+          <a href="docs.html" class="btn btn-primary">Read the docs</a>
+          <a href="trust.html" class="btn btn-secondary">See trust &amp; policy</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+  <script type="module" src="components/swc-docs-subnav.js"></script>
+</body>
+</html>

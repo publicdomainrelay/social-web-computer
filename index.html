@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compute Contracts Protocol — a marketplace made of records. Four signed hops, one verifiable contract.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Compute Contracts Protocol</title>
+  <style>
+    body { overflow-x: clip; }
+  </style>
+</head>
+<body>
+  <swc-nav current="home"></swc-nav>
+
+  <div class="swc-content" style="position:relative;">
+
+    <!-- Hero -->
+    <section class="hero">
+      <div>
+        <span class="hero__kicker">Compute Contracts Protocol · alpha</span>
+        <h1 class="hero__title">
+          <span style="display:block;">A marketplace</span><span style="display:block;">made of records.</span>
+        </h1>
+        <p class="hero__subtitle">
+          Four signed hops carry a machine from spec to receipt — RFP, bid, accept, receipt — each one an AT Protocol record anyone can verify.
+        </p>
+        <div class="hero__actions">
+          <a href="get-started.html" class="btn btn-primary">Get started</a>
+          <a href="docs.html" class="btn btn-ghost">Read the spec</a>
+        </div>
+      </div>
+      <!-- Flow diagram -->
+      <div class="flow-diagram">
+        <div class="flow-diagram__steps">
+          <div class="flow-diagram__step">
+            <div class="flow-diagram__circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+            </div>
+            <span class="flow-diagram__label">RFP</span>
+          </div>
+          <span class="flow-diagram__arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          <div class="flow-diagram__step">
+            <div class="flow-diagram__circle flow-diagram__circle--echo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+            </div>
+            <span class="flow-diagram__label">Bid</span>
+          </div>
+          <span class="flow-diagram__arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          <div class="flow-diagram__step">
+            <div class="flow-diagram__circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <span class="flow-diagram__label">Accept</span>
+          </div>
+          <span class="flow-diagram__arrow"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+          <div class="flow-diagram__step">
+            <div class="flow-diagram__circle flow-diagram__circle--echo">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent-2-700)" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.35 8.95a1 1 0 0 1-.6-.01C8.5 20.5 5 18 5 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C15.51 3.81 18 5 20 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <span class="flow-diagram__label">Receipt</span>
+          </div>
+        </div>
+        <p class="flow-diagram__footnote">Each arrow is a <code style="font:12px var(--font-mono);">strongRef</code> — a signed pointer to the record before it.</p>
+      </div>
+    </section>
+
+    <!-- Open RFPs -->
+    <section style="padding:16px 0 56px;">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <span class="hero__kicker" style="margin-bottom:6px;">Right now, on the firehose</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0;">Open RFPs</h2>
+        </div>
+        <a href="marketplace.html" class="btn btn-secondary">Open the marketplace</a>
+      </div>
+      <div class="feature-grid">
+        <div class="card elev-sm"><div class="card-kicker">us-west · open 6m</div><div class="card-title">4 cpu / 16G / 200G disk</div><p class="card-body">role: ml-inference-worker</p><div class="card-meta"><span class="tag tag-accent">$0.14/hr</span><span class="tag tag-neutral">3 bids</span></div></div>
+        <div class="card elev-sm"><div class="card-kicker">eu-central · open 41s</div><div class="card-title">8 cpu / 32G / 500G net</div><p class="card-body">role: batch-render-node</p><div class="card-meta"><span class="tag tag-accent">$0.31/hr</span><span class="tag tag-neutral">1 bid</span></div></div>
+        <div class="card elev-sm"><div class="card-kicker">ap-south · open 2m</div><div class="card-title">2 cpu / 4G / 40G disk</div><p class="card-body">role: ci-runner</p><div class="card-meta"><span class="tag tag-accent">$0.05/hr</span><span class="tag tag-neutral">5 bids</span></div></div>
+      </div>
+    </section>
+
+    <!-- For organizations -->
+    <section style="padding:24px 0 64px;">
+      <div class="two-col">
+        <div>
+          <span class="hero__kicker" style="margin-bottom:8px;">For organizations</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0;max-width:20ch;">Hand your spare capacity to your own people</h2>
+          <p style="font-size:15px;line-height:26px;margin:14px 0 0;max-width:52ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">If your org already owns machines, it can act as a bidder for its own members — no shared root passwords, no internal ticket queue. A member's RFP is just another signed record, and your bidder decides whose it will even look at.</p>
+          <a href="trust.html" class="btn btn-ghost" style="padding-left:0;margin-top:6px;">See how policy modes work →</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div class="card elev-sm" style="padding:16px 18px;display:flex;align-items:center;gap:12px;"><span class="tag tag-neutral" style="font:12px var(--font-mono);">only-me</span><p class="card-body" style="font-size:13px;margin:0;">Just your own DIDs — an internal pool, nothing public yet.</p></div>
+          <div class="card elev-sm" style="padding:16px 18px;display:flex;align-items:center;gap:12px;"><span class="tag tag-accent-2" style="font:12px var(--font-mono);">mutuals</span><p class="card-body" style="font-size:13px;margin:0;">Anyone your org mutually follows — reuse the social graph you have.</p></div>
+          <div class="card elev-sm" style="padding:16px 18px;display:flex;align-items:center;gap:12px;"><span class="tag tag-accent-2" style="font:12px var(--font-mono);">tangled-vouch</span><p class="card-body" style="font-size:13px;margin:0;">Anyone vouched for on Tangled's graph — revocable with a denounce.</p></div>
+          <div class="card elev-sm" style="padding:16px 18px;display:flex;align-items:center;gap:12px;"><span class="tag tag-accent" style="font:12px var(--font-mono);">dynamic</span><p class="card-body" style="font-size:13px;margin:0;">Delegate the allow/deny call to your own policy server or CI, per request.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section style="padding:8px 0 56px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>Bring your own machine</h3>
+          <p>Watch the firehose, price a bid, get paid the moment a receipt clears.</p>
+        </div>
+        <div class="cta-banner__actions">
+          <a href="get-started.html" class="btn btn-primary">Get started</a>
+          <a href="marketplace.html" class="btn btn-secondary">See open RFPs</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+</body>
+</html>

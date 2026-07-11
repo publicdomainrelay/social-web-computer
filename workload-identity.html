@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Workload Identity Federation — a provisioned workload never holds a long-lived secret">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Workload Identity Federation — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="docs"></swc-nav>
+  <swc-docs-subnav current="wif"></swc-docs-subnav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 36px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Workload Identity Federation</span>
+      <h1 style="margin-left:-0.028em;max-width:22ch;">A provisioned workload never holds a long-lived secret</h1>
+      <p style="font-size:15.5px;line-height:26px;max-width:74ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Instead of a provider baking a static API key or password into a VM at boot, a bid can attach a <code class="inline-code">compute.config.wif.simple</code> record: a pointer to an OIDC issuer the workload can prove its own identity to, in exchange for a short-lived token scoped to exactly what it needs.</p>
+    </section>
+
+    <section style="padding-bottom:48px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 12px;">The record</h2>
+      <div class="two-col">
+        <div class="card elev-sm" style="padding:22px;min-width:0;">
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tbody>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">issuer_uri</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The OIDC issuer the workload will authenticate against.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">to_issue</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The audience the token should be scoped to — an API identifier plus an <code style="font:12px var(--font-mono);">actx</code> tying it to this specific contract.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">subject</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The identity the token asserts — e.g. <code style="font:11.5px var(--font-mono);">actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code>.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">token_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the workload writes the token once it has one.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">url_route</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The path on the issuer to call to redeem a proof for a token.</td></tr>
+              <tr><td style="padding:6px 0;vertical-align:top;"><code style="font:12px var(--font-mono);">accept_path</code></td><td style="padding:6px 0;color:color-mix(in srgb, var(--color-text) 78%, transparent);">Where the signed accept bundle is written on the guest for identity proof.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre class="code-block" style="min-width:0;"><code>$type: compute.config.wif.simple
+accept_path: $HOME/secrets/market/accept.json
+issuer_uri: https://droplet-oidc.example.com
+to_issue: api://provider?actx=...
+token_path: /var/run/secrets/wid/token
+url_route: /v1/oidc/issue
+subject: actx:&lt;team&gt;:plc:&lt;requester-did&gt;:role:&lt;role&gt;</code></pre>
+      </div>
+      <p style="font-size:13px;margin:14px 0 0;color:color-mix(in srgb, var(--color-text) 60%, transparent);">This is orthogonal to policy mode: <a href="trust.html">policy</a> decides whether a workload gets scheduled at all; WIF decides what it can authenticate as once it's running.</p>
+    </section>
+
+    <section style="padding-bottom:48px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 6px;">A real deployment: fedproxy.com</h2>
+      <p style="font-size:14px;line-height:23px;margin:0 0 20px;max-width:74ch;color:color-mix(in srgb, var(--color-text) 78%, transparent);">The reference bidder uses this pattern to hand a freshly provisioned VM a browser-accessible terminal without ever shipping it a static password.</p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card elev-sm" style="padding:20px;">
+          <span class="tag tag-accent-2">issuer</span>
+          <h3 style="font-size:15.5px;margin:10px 0 6px;">A small OIDC + RBAC service the provider runs</h3>
+          <p class="card-body" style="font-size:13.5px;">Exposes <code class="inline-code">POST /v1/oidc/prove</code> and <code class="inline-code">POST /v1/oidc/issue</code>. A VM proves custody of its SSH key by signing a challenge; the issuer replies with a short-lived, audience-scoped OIDC token.</p>
+        </div>
+        <div class="card elev-sm" style="padding:20px;">
+          <span class="tag tag-accent">fedproxy-client</span>
+          <h3 style="font-size:15.5px;margin:10px 0 6px;">A systemd service cloud-init installs on the guest</h3>
+          <p class="card-body" style="font-size:13.5px;">Runs with <code class="inline-code">AUTH_PLUGIN=oidc</code>, pointed at the issuer, and opens an outbound tunnel so the VM is reachable at a stable subdomain without any inbound port.</p>
+        </div>
+        <div class="card elev-sm" style="padding:20px;">
+          <span class="tag tag-neutral">the payoff</span>
+          <h3 style="font-size:15.5px;margin:10px 0 6px;">A credential fetched, not shipped</h3>
+          <p class="card-body" style="font-size:13.5px;">Once the VM holds its scoped token, it calls the relay for its own credentials record. The relay's middleware validates the OIDC bearer before returning anything. No password was ever baked into the image.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-bottom:48px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:22px;margin:0 0 12px;">The exchange, step by step</h2>
+      <div class="verification-steps">
+        <div class="vstep">
+          <div class="vstep__marker">1</div>
+          <p>The provider attaches a <code class="inline-code">wif.simple</code> config to its bid, naming an issuer it already runs.</p>
+        </div>
+        <div class="vstep">
+          <div class="vstep__marker">2</div>
+          <p>The requester's own RBAC records what that issuer is trusted to authorize, before accepting anything from this provider.</p>
+        </div>
+        <div class="vstep">
+          <div class="vstep__marker vstep__marker--echo">3</div>
+          <p>On accept, cloud-init writes the signed accept bundle to <code class="inline-code">accept_path</code> and starts the identity client alongside the workload.</p>
+        </div>
+        <div class="vstep">
+          <div class="vstep__marker vstep__marker--echo">4</div>
+          <p>The workload proves itself to <code class="inline-code">issuer_uri</code> — in the reference case, an SSH-signed challenge — and is issued a token scoped to the <code class="inline-code">subject</code> and <code class="inline-code">to_issue</code> audience.</p>
+        </div>
+        <div class="vstep">
+          <div class="vstep__marker" style="background:var(--color-neutral-300);color:var(--color-text);">5</div>
+          <p>The token is written to <code class="inline-code">token_path</code> and used for exactly the calls it was scoped for. It expires; nothing longer-lived was ever issued.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="padding-bottom:64px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>This is one bid detail among several</h3>
+          <p>See the full record reference for how a bid, RFP and receipt fit together.</p>
+        </div>
+        <div class="cta-banner__actions">
+          <a href="docs.html" class="btn btn-primary">Read the docs</a>
+          <a href="trust.html" class="btn btn-secondary">Trust &amp; policy</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+  <script type="module" src="components/swc-docs-subnav.js"></script>
+</body>
+</html>

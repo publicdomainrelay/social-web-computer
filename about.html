@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="About Compute Contracts Protocol — decentralized compute marketplace built on AT Protocol">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>About — Compute Contracts Protocol</title>
+</head>
+<body>
+  <swc-nav current="about"></swc-nav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 40px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">About</span>
+      <h1 style="margin-left:-0.028em;max-width:18ch;">Compute is easier to trust when you can read the receipt.</h1>
+      <p style="font-size:17px;line-height:28px;max-width:62ch;margin:24px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Cloud marketplaces today ask you to trust a platform's ledger. Compute Contracts Protocol asks you to trust arithmetic instead — every request, bid, acceptance and settlement is a record you or anyone else can fetch, verify and replay, because it was never anywhere but your own repository and theirs.</p>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <div class="feature-grid">
+        <div class="card" style="padding:24px;"><div class="card-kicker">No broker</div><p class="card-body" style="font-size:14px;">There's no marketplace operator holding both sides' funds or records. The firehose is public infrastructure; anyone can run a relay.</p></div>
+        <div class="card" style="padding:24px;"><div class="card-kicker">No trust, just proof</div><p class="card-body" style="font-size:14px;">A receipt's CID binds the whole contract chain. Verifying a settlement is a hash check, not a phone call.</p></div>
+        <div class="card" style="padding:24px;"><div class="card-kicker">Built on what exists</div><p class="card-body" style="font-size:14px;">It's ordinary AT Protocol records and the same firehose Bluesky and every other app already reads.</p></div>
+      </div>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <div class="card elev-sm" style="padding:24px;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;">
+        <div>
+          <span class="tag tag-accent">Optional</span>
+          <h2 style="font-family:var(--font-heading);font-weight:400;font-size:20px;margin:10px 0 0;">Not ready to self-host?</h2>
+          <p class="card-body" style="font-size:14px;margin-top:6px;max-width:56ch;">The Gateway service runs the requester side for you — one XRPC call in, a receipt and a terminal out — while every record it writes is still the same open protocol underneath.</p>
+        </div>
+        <a href="gateway.html" class="btn btn-secondary">See the gateway</a>
+      </div>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0 0 6px;">Who does what</h2>
+      <p style="font-size:14.5px;line-height:24px;margin:0 0 20px;color:color-mix(in srgb, var(--color-text) 75%, transparent);max-width:70ch;">Four roles, none of them a central authority.</p>
+      <table class="table">
+        <thead><tr><th>Actor</th><th>Role</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Requester</strong></td><td>Authors the <code class="inline-code">market.rfp</code> and <code class="inline-code">market.accept</code> records. Wants compute.</td></tr>
+          <tr><td><strong>Provider (bidder)</strong></td><td>Authors <code class="inline-code">market.bid</code> and <code class="inline-code">market.receipt</code>. Has spare machines.</td></tr>
+          <tr><td><strong>PDS</strong></td><td>Each actor's Personal Data Server, holding their signed records.</td></tr>
+          <tr><td><strong>Firehose / relay</strong></td><td>Streams commits from every relevant PDS so participants can discover each other's records.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section style="padding-bottom:56px;">
+      <h2 style="font-family:var(--font-heading);font-weight:400;font-size:26px;margin:0 0 6px;">Where this is headed</h2>
+      <p style="font-size:15px;line-height:26px;max-width:66ch;margin:0 0 20px;color:color-mix(in srgb, var(--color-text) 78%, transparent);">This is alpha software — the NSIDs live under a temporary namespace and interfaces will move. It already works well enough for individual providers and requesters; the next stretch is organizations that hold compute and want to hand it to their own members through the same records, and a scorer that goes past "lowest cost."</p>
+      <span class="tag tag-outline">com.publicdomainrelay.temp.*</span>
+    </section>
+
+    <section style="padding-bottom:64px;">
+      <div class="cta-banner cta-banner--accent">
+        <div class="cta-banner__text">
+          <h3>Read the code, not just the pitch</h3>
+          <p>The record schemas, the reference provider and the reference requester are all in the open repository.</p>
+        </div>
+        <div class="cta-banner__actions">
+          <a href="https://github.com/publicdomainrelay/org-root-dispatcher-typescript" target="_blank" rel="noopener" class="btn btn-primary" style="display:flex;align-items:center;gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+            View the repository
+          </a>
+          <a href="docs.html" class="btn btn-secondary">Read the docs</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+</body>
+</html>

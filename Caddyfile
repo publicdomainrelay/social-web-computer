@@ -1,0 +1,8 @@
+computecontracts.org {
+  root * /var/www/computecontracts.org
+  encode gzip
+  header {
+    Cache-Control "no-cache"
+  }
+  file_server
+}
