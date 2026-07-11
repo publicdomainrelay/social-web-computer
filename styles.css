@@ -324,6 +324,11 @@ a:hover { color: var(--color-accent); }
 }
 .hero__actions { display: flex; gap: 13px; flex-wrap: wrap; margin-top: 26px; }
 
+@media (max-width: 768px) {
+  .hero { grid-template-columns: 1fr; gap: 28px; padding: 48px 0 32px; }
+  .hero__title { font-size: clamp(30px, 8vw, 44px); }
+}
+
 /* ── Flow diagram (landing) ── */
 .flow-diagram {
   background: var(--color-surface); border-radius: 36px;
@@ -413,6 +418,9 @@ a:hover { color: var(--color-accent); }
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 20px; padding: 22px;
+}
+@media (max-width: 768px) {
+  .record-card { grid-template-columns: 1fr; }
 }
 .record-card__desc h3 { font-size: 17px; margin: 10px 0 4px; }
 .record-card__desc p { font-size: 13.5px; }
@@ -522,7 +530,13 @@ a:hover { color: var(--color-accent); }
 
 /* ── Two-column layout ── */
 .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 48px; align-items: start; }
-@media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+.two-col--docs { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 56px; align-items: start; }
+.step-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: 32px; align-items: center; }
+@media (max-width: 768px) {
+  .two-col { grid-template-columns: 1fr; }
+  .two-col--docs { grid-template-columns: 1fr; }
+  .step-grid { grid-template-columns: 1fr; }
+}
 
 /* ── Selection ── */
 ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }

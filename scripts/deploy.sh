@@ -10,7 +10,7 @@ cd "$PROJECT_DIR"
 deno run -A build.ts
 
 # Deploy — adjust SSH_TARGET to your server
-SSH_TARGET="${SSH_TARGET:-root@computecontracts.org}"
+SSH_TARGET="${SSH_TARGET:-root@socialweb.computer}"
 SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o BatchMode=yes"
 
 ssh ${SSH_OPTS} "${SSH_TARGET}" "rm -rf /tmp/stage-social-web-computer && mkdir -p /tmp/stage-social-web-computer"

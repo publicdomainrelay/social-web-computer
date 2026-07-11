@@ -13,6 +13,7 @@ export class SwcNav extends HTMLElement {
     const current = this.getAttribute('current') || 'home';
     const links = [
       { id: 'how-it-works', label: 'How it works', href: 'how-it-works.html' },
+      { id: 'request-compute', label: 'Request Compute', href: 'request-compute.html' },
       { id: 'marketplace', label: 'Marketplace', href: 'marketplace.html' },
       { id: 'docs', label: 'Docs', href: 'docs.html' },
       { id: 'about', label: 'About', href: 'about.html' },

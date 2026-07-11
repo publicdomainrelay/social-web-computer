@@ -31,7 +31,7 @@
     <!-- Requester steps -->
     <section id="requester-steps" style="padding-bottom:56px;display:flex;flex-direction:column;gap:36px;">
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Automated path (recommended)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Run the requester CLI</h2>
@@ -56,7 +56,7 @@ $ deno run -A jsr:@publicdomainrelay/request-vm-ssh \
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 1 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Describe the machine</h2>
@@ -72,7 +72,7 @@ disk: 40G
 role: ml-inference-worker</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 2 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Publish the RFP</h2>
@@ -87,7 +87,7 @@ payload:
   cid: bafyrei...vm</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 3 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Wait, score, accept</h2>
@@ -101,7 +101,7 @@ $ curl -X POST https://bob.example/xrpc/submitAccept \
     -d @accept.yaml</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);">Step 4 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Get your receipt</h2>
@@ -118,7 +118,7 @@ $ curl -X POST https://bob.example/xrpc/submitAccept \
     <!-- Provider steps (hidden by default) -->
     <section id="provider-steps" style="padding-bottom:56px;display:none;flex-direction:column;gap:36px;">
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Automated path (recommended)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Run the bidder CLI</h2>
@@ -149,7 +149,7 @@ $ deno run -A jsr:@publicdomainrelay/hono-bidder \
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 1 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Pick a policy, then watch the firehose</h2>
@@ -160,7 +160,7 @@ $ deno run -A jsr:@publicdomainrelay/hono-bidder \
   .on('commit', (rfp) => considerBidding(rfp))</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 2 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Price it, bid it</h2>
@@ -174,7 +174,7 @@ $ atproto record create \
     --record bid.yaml</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 3 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Accept a submitAccept</h2>
@@ -187,7 +187,7 @@ $ atproto record create \
 })</code></pre>
       </div>
 
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,480px);gap:32px;align-items:center;">
+      <div class="step-grid">
         <div>
           <span style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-2-700);">Step 4 (manual)</span>
           <h2 style="font-family:var(--font-heading);font-weight:400;font-size:24px;margin:6px 0 0;">Provision, then mint the receipt</h2>

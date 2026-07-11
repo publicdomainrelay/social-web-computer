@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Request Compute — provision a VM through the decentralized market with policy mode selection">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <title>Request Compute — Compute Contracts Protocol</title>
+  <style>
+    /* Progress bar */
+    .progress-bar { display:flex; flex-wrap:wrap; gap:6px; }
+    .progress-step { display:inline-flex; align-items:center; gap:4px; padding:5px 10px; border-radius:var(--radius-full); font-size:12px; font-family:var(--font-mono); background:var(--color-surface); color:var(--color-text-muted); }
+    .progress-step--active { background:var(--color-accent-100); color:var(--color-accent-700); font-weight:600; }
+    .progress-step--done { background:var(--color-accent-2-100); color:var(--color-accent-2-700); }
+    /* Log area */
+    .log-area { max-height:320px; overflow-y:auto; font:11.5px var(--font-mono); line-height:1.6; background:var(--color-surface); border-radius:var(--radius-lg); padding:12px 14px; }
+    .log-entry { white-space:pre-wrap; word-break:break-all; }
+    .log-ts { color:var(--color-text-faint); margin-right:6px; }
+    .log-warn { color:var(--color-accent-700); }
+    .log-error { color:#d32f2f; font-weight:600; }
+    /* Key code */
+    .key-code { font:13px var(--font-mono); background:var(--color-surface); border-radius:var(--radius-md); padding:10px 14px; word-break:break-all; user-select:all; }
+    /* Form controls */
+    .form-group { display:flex; flex-direction:column; gap:4px; }
+    .form-group label { font-size:12.5px; font-weight:500; color:color-mix(in srgb, var(--color-text) 72%, transparent); }
+    .form-group input, .form-group select, .form-group textarea { padding:8px 12px; border:1px solid var(--color-divider); border-radius:var(--radius-md); font:13px var(--font-mono); background:var(--color-bg); color:var(--color-text); }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--color-accent-700); }
+  </style>
+</head>
+<body>
+  <swc-nav current="request-compute"></swc-nav>
+
+  <div class="swc-content">
+
+    <section style="padding:72px 0 32px;">
+      <span style="display:block;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;font-weight:600;color:var(--color-accent-700);margin:0 0 12px;">Request Compute</span>
+      <h1 style="margin-left:-0.028em;max-width:18ch;">Request a VM via the market</h1>
+      <p style="font-size:16px;line-height:27px;max-width:64ch;margin:18px 0 0;color:color-mix(in srgb, var(--color-text) 82%, transparent);">Configure your VM, select a policy mode to control who can bid, and submit. The relay connects you to bidders on the decentralized market — you get a terminal and a receipt back.</p>
+    </section>
+
+    <section style="padding-bottom:32px;">
+      <div class="notice notice--info" style="margin-bottom:24px;">
+        <p style="margin:0;font-size:13.5px;line-height:22px;"><strong>Policy modes</strong> control who can bid on your RFP. <code class="inline-code">only-me</code> = just your own DIDs. <code class="inline-code">tangled-vouch</code> = anyone you have vouched for on Tangled's graph. <code class="inline-code">mutuals</code> = mutual follows on Bluesky. <code class="inline-code">dynamic</code> = delegate to a remote policy engine. <a href="trust.html">Learn more →</a></p>
+      </div>
+    </section>
+
+    <swc-request-compute></swc-request-compute>
+
+    <section style="padding:48px 0 64px;">
+      <div class="cta-banner">
+        <div class="cta-banner__text">
+          <h3>Prefer the CLI?</h3>
+          <p>The <code class="inline-code">request-vm-ssh</code> CLI does the same flow from your terminal — with full SSH, firehose bid watching, and all four policy modes.</p>
+        </div>
+        <div class="cta-banner__actions">
+          <a href="get-started.html" class="btn btn-primary">Get started</a>
+          <a href="docs.html" class="btn btn-secondary">Read the docs</a>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <swc-footer></swc-footer>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "compute-spa/constants": "../compute-spa/lib/constants.js",
+      "compute-spa/relay": "../compute-spa/lib/relay.js",
+      "compute-spa/service-auth": "../compute-spa/lib/service-auth.js",
+      "compute-spa/cloud-init": "../compute-spa/lib/cloud-init.js",
+      "compute-spa/ephemeral-pds": "../compute-spa/lib/ephemeral-pds.js",
+      "@publicdomainrelay/compute-spa-keypair-noble": "jsr:@publicdomainrelay/compute-spa-keypair-noble@^0",
+      "@noble/curves/": "https://esm.sh/@noble/curves@1.9.7/",
+      "@noble/hashes/": "https://esm.sh/@noble/hashes@1.8.0/"
+    }
+  }
+  </script>
+  <script type="module" src="components/swc-nav.js"></script>
+  <script type="module" src="components/swc-footer.js"></script>
+  <script type="module" src="components/swc-request-compute.js"></script>
+</body>
+</html>

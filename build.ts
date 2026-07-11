@@ -15,7 +15,7 @@ for (const f of staticFiles) {
 // Copy HTML pages
 for (const name of [
   "index", "how-it-works", "docs", "get-started", "marketplace",
-  "trust", "security", "workload-identity", "gateway", "about"
+  "trust", "security", "workload-identity", "gateway", "about", "request-compute"
 ]) {
   const src = `${import.meta.dirname}/${name}.html`;
   const dst = `${DIST}/${name}.html`;
