@@ -13,7 +13,7 @@ const SEED_RFPS = [
     bids: [ { id: 'b1', provider: 'at://did:plc:ripple', payloadType: 'bids.free' }, { id: 'b2', provider: 'at://did:plc:kestrel', payloadType: 'bids.free' } ] },
   { id: 'r2', region: 'eu', computeVm: { cpus: 8, mem: '32G', disk: '250G', network: '500G', location: { country: 'DEU', region: 'central' } }, role: 'batch-render-node', policy: 'mutuals',
     bids: [ { id: 'b3', provider: 'at://did:plc:harborlight', payloadType: 'bids.free' } ] },
-  { id: 'r3', region: 'ap', computeVm: { cpus: 2, mem: '4G', disk: '40G', network: '500G', location: { country: 'JPN', region: 'south' } }, role: 'ci-runner', policy: 'dynamic',
+  { id: 'r3', region: 'ap', computeVm: { cpus: 2, mem: '4G', disk: '40G', network: '500G', location: { country: 'JPN', region: 'south' } }, role: 'ci-runner', policy: 'tangled-vouch',
     bids: [ { id: 'b4', provider: 'at://did:plc:tinbird', payloadType: 'bids.free' }, { id: 'b5', provider: 'at://did:plc:mossgate', payloadType: 'bids.free' }, { id: 'b6', provider: 'at://did:plc:driftwood', payloadType: 'bids.free' } ] },
   { id: 'r4', region: 'us', computeVm: { cpus: 16, mem: '64G', disk: '1T', network: '1T', location: { country: 'USA', region: 'west' } }, role: 'training-cluster-node', policy: 'tangled-vouch',
     bids: [ { id: 'b7', provider: 'at://did:plc:kestrel', payloadType: 'bids.free' } ] },

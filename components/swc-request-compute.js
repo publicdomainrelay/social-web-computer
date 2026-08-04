@@ -5,6 +5,7 @@
 import { escapeHtml, log } from '../main.js';
 import {
   COMPUTE_VM_NSID, RFP_NSID, ACCEPT_NSID, OFFERING_NSID,
+  POLICIES_BUILTIN_NSID, POLICIES_SERVICE_NSID,
   VOUCH_NSID, BADGE_BLUE_KEYS_NSID, SUBMIT_RFP_NSID, SUBMIT_ACCEPT_NSID,
   FEDPROXY_HOST, XRPC_DISPATCHER_HOST, MARKET_RELAY_URL,
   didPlcKey, vmServiceName, terminalUrl, generatePassword,
@@ -16,11 +17,10 @@ import { createServiceAuthJWT } from 'compute-spa/service-auth';
 import { CLOUD_INIT_PRESETS, buildDefaultUserData } from 'compute-spa/cloud-init';
 import { createEphemeralPds } from 'compute-spa/ephemeral-pds';
 
-const POLICY_MODES = [
+const POLICIES = [
   { value: 'only-me', label: 'Only Me', desc: 'Only your own DIDs — an internal pool.' },
   { value: 'tangled-vouch', label: 'Tangled Vouch', desc: 'Anyone you have vouched for on Tangled\'s graph.' },
   { value: 'mutuals', label: 'Mutuals', desc: 'Mutual follows — reuse your social graph.' },
-  { value: 'dynamic', label: 'Dynamic', desc: 'Delegate to a remote policy engine URL.' },
 ];
 
 const VM_NAME_PREFIX = 'test-';
@@ -33,7 +33,7 @@ export class SwcRequestCompute extends HTMLElement {
       relayStatus: 'disconnected',
       relaySubdomain: null,
       proxyRef: null,
-      policyMode: 'only-me',
+      policy: 'only-me',
       policyEngineEndpoint: '',
       vmName: VM_NAME_PREFIX + Math.random().toString(36).slice(2, 6),
       vmSpec: { cpus: 2, mem: '4G', disk: '40G', network: '500G' },
@@ -145,8 +145,8 @@ export class SwcRequestCompute extends HTMLElement {
       s.relayStatus === 'connecting' ? 'var(--color-accent-700)' : 'var(--color-neutral-500)';
     const statusLabel = s.relayStatus === 'registered' ? `connected · ${s.relaySubdomain || ''}` :
       s.relayStatus === 'connecting' ? 'connecting...' : 'disconnected';
-    const policyOpts = POLICY_MODES.map(m => {
-      const checked = s.policyMode === m.value ? 'checked' : '';
+    const policyOpts = POLICIES.map(m => {
+      const checked = s.policy === m.value ? 'checked' : '';
       return `<label class="seg-opt"><input type="radio" name="policy" value="${m.value}" ${checked}><span title="${escapeHtml(m.desc)}">${escapeHtml(m.label)}</span></label>`;
     }).join('');
 
@@ -164,7 +164,7 @@ export class SwcRequestCompute extends HTMLElement {
         <h3 style="font-size:16px;margin:0 0 8px;">Policy Mode</h3>
         <p style="font-size:13px;color:color-mix(in srgb, var(--color-text) 70%, transparent);margin:0 0 12px;">Controls who can bid on your RFP.</p>
         <div class="seg" id="policy-selector">${policyOpts}</div>
-        <div id="policy-url-group" class="${s.policyMode === 'dynamic' ? '' : 'hidden'}" style="margin-top:12px;">
+        <div id="policy-url-group" class="${s.policyEngineEndpoint ? '' : 'hidden'}" style="margin-top:12px;">
           <label for="policy-url" style="display:block;font-size:13px;margin-bottom:4px;">Policy Engine URL</label>
           <input type="text" id="policy-url" value="${escapeHtml(s.policyEngineEndpoint)}" placeholder="https://your-policy-server.com" style="width:100%;max-width:420px;padding:8px 12px;border:1px solid var(--color-divider);border-radius:var(--radius-md);font:13px var(--font-mono);background:var(--color-bg);color:var(--color-text);">
         </div>
@@ -252,7 +252,7 @@ export class SwcRequestCompute extends HTMLElement {
         <div style="font-size:13px;color:color-mix(in srgb, var(--color-text) 70%, transparent);display:flex;flex-direction:column;gap:4px;">
           <span>Spec: ${this._state.vmSpec.cpus} CPU / ${this._state.vmSpec.mem} / ${this._state.vmSpec.disk} / ${this._state.vmSpec.network}</span>
           ${r.winnerDid ? `<span>Winner: ${escapeHtml(r.winnerDid)}</span>` : ''}
-          ${r.policyMode ? `<span>Policy: ${escapeHtml(r.policyMode)}</span>` : ''}
+          ${r.policy ? `<span>Policy: ${escapeHtml(r.policy)}</span>` : ''}
         </div>
       </div>
       <div class="card elev-sm" style="padding:20px;">
@@ -275,7 +275,7 @@ export class SwcRequestCompute extends HTMLElement {
     const sel = this.querySelector('#policy-selector');
     if (sel) sel.addEventListener('change', (e) => {
       if (e.target.name === 'policy') {
-        this._state.policyMode = e.target.value;
+        this._state.policy = e.target.value;
         this.render();
       }
     });
@@ -410,12 +410,26 @@ export class SwcRequestCompute extends HTMLElement {
       // Step 6: Create market.rfp record
       advance('Creating market.rfp record');
       const attestEntry = await this._signAttestation(vmRecord, this._kp.did);
+      // Mint the fulfillment policy record and strongRef it from the RFP, the
+      // same shape runComputeContract writes. A policy engine DID makes it a
+      // policies.service record; otherwise it runs from the local registry.
+      const policyNsid = s.policyEngineEndpoint ? POLICIES_SERVICE_NSID : POLICIES_BUILTIN_NSID;
+      const policyRecord = {
+        $type: policyNsid,
+        name: s.policy,
+        description: POLICIES.find((p) => p.value === s.policy)?.desc || '',
+        args: { bidWindowSec: s.bidWindowSec ?? 30, firstFree: !!s.firstFree },
+        requesterDid: this._kp.did,
+        createdAt: new Date().toISOString(),
+        ...(s.policyEngineEndpoint ? { policyEngine: s.policyEngineEndpoint } : {}),
+      };
+      const policyRec = this._epds.createRecord(policyNsid, policyRecord);
+
       const rfpPayload = {
         $type: RFP_NSID,
         payload: { $type: 'com.atproto.repo.strongRef', uri: vmUri, cid: vmCid },
         submitBid: `https://${s.relaySubdomain}.xrpc.fedproxy.com`,
-        policyEngine: s.policyMode,
-        ...(s.policyMode === 'dynamic' && s.policyEngineEndpoint ? { policyEngineEndpoint: s.policyEngineEndpoint } : {}),
+        policies: [{ $type: 'com.atproto.repo.strongRef', uri: policyRec.uri, cid: policyRec.cid }],
         signatures: [attestEntry],
       };
       const rfpRec = this._epds.createRecord(RFP_NSID, rfpPayload);
@@ -526,7 +540,7 @@ export class SwcRequestCompute extends HTMLElement {
             receiptUri: receipt.uri, receiptCid: receipt.cid,
             winnerDid: winner.did,
             ttydPassword,
-            policyMode: s.policyMode,
+            policy: s.policy,
             submitEventRef: receipt.submitEvent,
           };
           this._addLog('info', `Receipt: ${receipt.uri}`);
@@ -536,7 +550,7 @@ export class SwcRequestCompute extends HTMLElement {
 
       // Step 11: Save VM
       advance('Saving VM');
-      s.flowResult = s.flowResult || { vmUri, vmCid, rfpUri, rfpCid, ttydPassword, policyMode: s.policyMode };
+      s.flowResult = s.flowResult || { vmUri, vmCid, rfpUri, rfpCid, ttydPassword, policy: s.policy };
       try {
         const saved = JSON.parse(localStorage.getItem('compute-spa-saved-vms') || '[]');
         saved.push({ ...s.flowResult, vmName: s.vmName, role: s.role, createdAt: new Date().toISOString() });
