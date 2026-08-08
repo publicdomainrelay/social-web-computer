@@ -11,6 +11,7 @@ SSH_OPTS="-o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 -o BatchMode=
 # ── Build static site ──────────────────────────────────────────────────────────
 
 cd "$PROJECT_DIR"
+rm -rf fancy
 deno run -A build.ts
 mv dist fancy
 
@@ -66,7 +67,7 @@ ssh ${SSH_OPTS} "${SSH_TARGET}" bash -xe <<'REMOTE_EOF'
 # ── Static site ────────────────────────────────────────────────────────────────
 mkdir -p /var/www/socialweb.computer
 rm -rf /var/www/socialweb.computer/*
-mv /tmp/stage-social-web-computer/fancy/* /var/www/socialweb.computer/
+mv /tmp/stage-social-web-computer/fancy /var/www/socialweb.computer/
 mv /tmp/stage-social-web-computer/index.html /var/www/socialweb.computer/
 # Copy remaining loose files (styles.css, main.js, *.html)
 for f in /tmp/stage-social-web-computer/*; do
