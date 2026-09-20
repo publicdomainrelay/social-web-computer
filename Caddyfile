@@ -10,3 +10,9 @@ socialweb.computer {
 digitalocean.socialweb.computer {
   reverse_proxy http://127.0.0.1:8000
 }
+
+# Deploying this file replaces /etc/caddy/Caddyfile wholesale, which would drop
+# the line the ssh door's deploy appends here -- and with it the routing for
+# ssh.socialweb.computer, including the did:web document the app's DID resolves
+# through. Carried in the file so either deploy can run first.
+import /etc/caddy/sites/*.caddy
